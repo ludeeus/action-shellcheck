@@ -1,16 +1,8 @@
 workflow "Trigger: Push" {
   on = "push"
-  resolves = [
-    "Shellcheck",
-    "Black Code Formatter",
-  ]
+  resolves = ["Shellcheck"]
 }
 
 action "Shellcheck" {
   uses = "ludeeus/action-shellcheck@master"
-}
-
-action "Black Code Formatter" {
-  uses = "lgeiger/black-action@master"
-  args = "$GITHUB_WORKSPACE --check"
 }
