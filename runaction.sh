@@ -8,6 +8,7 @@ find . '(' -name   '*.bash' \
         -o -name   '*.ksh' \
         -o -name   'ksh*'  \
         -o -path '*/.ksh*'      -o -path '*/ksh*'  \
+        -o -name   'suid_profile' \
         \
         -o -name   '*.zsh' \
         -o -name   '.zlogin*'   -o -name   'zlogin*'   \
