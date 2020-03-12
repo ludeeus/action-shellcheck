@@ -1,8 +1,18 @@
-#!/bin/sh
+#!/bin/bash
 
 cd "$GITHUB_WORKSPACE" || exit
 
-find . '(' -name   '*.bash' \
+EXCLUDES=()
+
+# shellcheck disable=SC2206
+for dir in ${EXCLUDE_DIRS}; do
+   # all find results start with './'
+   [[ ${dir#./*} != $dir ]] || dir=./${dir}
+   EXCLUDES+=( ! -path "$dir/*" -a )
+done
+
+find . "${EXCLUDES[@]}"  \
+       '(' -name   '*.bash' \
         -o -path '*/.bash*'     -o -path '*/bash*' \
         \
         -o -name   '*.ksh' \
@@ -22,7 +32,7 @@ find . '(' -name   '*.bash' \
        ')' -exec shellcheck {} + || exit
 
 # shellcheck disable=SC2016
-find . -type f ! -name '*.*' -perm /111 -exec sh -c '
+find . "${EXCLUDES[@]}" -type f ! -name '*.*' -perm /111 -exec sh -c '
         for f
         do
             head -n1 "$f" | grep -Eqs "^#! */[^ ]*/[abkz]*sh" || continue
@@ -31,13 +41,13 @@ find . -type f ! -name '*.*' -perm /111 -exec sh -c '
         exit $err
         ' _ {} + || exit
 
-if  find . -path '*bin/*/*' -type f -perm /111 -print |
+if  find . "${EXCLUDES[@]}" -path '*bin/*/*' -type f -perm /111 -print |
     grep .
 then
     echo >&2 "WARNING: subdirectories of bin directories are not usable via PATH"
 fi
 
-if  find . -path '*bin/*' -name '*.*' -type f -perm /111 -perm /444 -print |
+if  find . "${EXCLUDES[@]}" -path '*bin/*' -name '*.*' -type f -perm /111 -perm /444 -print |
     grep .
 then
     echo >&2 "WARNING: programs in PATH should not have a filename suffix"
