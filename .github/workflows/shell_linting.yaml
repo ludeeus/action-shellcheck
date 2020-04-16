@@ -1,0 +1,14 @@
+name: Shell Lint
+
+on:
+  pull_request:
+    types: ['opened', 'edited', 'reopened', 'synchronize']
+
+jobs:
+  shellcheck:
+    name: Shell Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Check Shell Files
+        uses: AutoGravity/shellcheck-action@v0.0.0
