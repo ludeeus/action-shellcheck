@@ -1,6 +1,8 @@
 #!/bin/sh
 
-cd "$GITHUB_WORKSPACE" || exit
+cd "$GITHUB_WORKSPACE" || exit 1
+
+err=0
 
 find . '(' -name   '*.bash' \
         -o -path '*/.bash*'     -o -path '*/bash*' \
@@ -19,7 +21,7 @@ find . '(' -name   '*.bash' \
         -o -name   '*.sh' \
         -o -path '*/.profile*'  -o -path '*/profile*' \
         -o -path '*/.shlib*'    -o -path '*/shlib*'   \
-       ')' -exec shellcheck {} + || exit
+       ')' -exec shellcheck {} + || err=1
 
 # shellcheck disable=SC2016
 find . -type f ! -name '*.*' -perm /111 -exec sh -c '
@@ -29,7 +31,7 @@ find . -type f ! -name '*.*' -perm /111 -exec sh -c '
             shellcheck "$f" || err=$?
         done
         exit $err
-        ' _ {} + || exit
+        ' _ {} + || err=1
 
 if  find . -path '*bin/*/*' -type f -perm /111 -print |
     grep .
@@ -42,3 +44,5 @@ if  find . -path '*bin/*' -name '*.*' -type f -perm /111 -perm /444 -print |
 then
     echo >&2 "WARNING: programs in PATH should not have a filename suffix"
 fi
+
+exit "$err"
