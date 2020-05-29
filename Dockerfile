@@ -1,16 +1,15 @@
-FROM debian:latest
+FROM alpine:3.11.6
 
-COPY runaction.sh /runaction.sh
-RUN chmod +x /runaction.sh
-RUN apt update
-RUN apt install -y shellcheck
+COPY runaction.sh /action/runaction.sh
 
-ENTRYPOINT ["/runaction.sh"]
+RUN apk add --no-cache shellcheck bash
 
-LABEL "name"="shellcheck"
-LABEL "maintainer"="Ludeeus <ludeeus@gmail.com>"
+ENTRYPOINT ["bash", "/action/runaction.sh"]
+
+LABEL "name"="ShellCheck"
+LABEL "maintainer"="Ludeeus <hi@ludeeus.dev>"
 LABEL "version"="0.1.0"
-LABEL "com.github.actions.name"="shellcheck"
-LABEL "com.github.actions.description"="Run shell check on ALL sh files in the repository."
+LABEL "com.github.actions.name"="ShellCheck"
+LABEL "com.github.actions.description"="GitHub action for ShellCheck."
 LABEL "com.github.actions.icon"="terminal"
 LABEL "com.github.actions.color"="black"
