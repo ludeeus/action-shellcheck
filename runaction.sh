@@ -37,7 +37,7 @@ readarray -d '' filepaths < <(find . '(' \
     -print0)
 
 
-readarray -d '' tmp < <(find . -type f ! -name '*.sh' -perm /111  -print0)
+readarray -d '' tmp < <(find . -type f ! -name '*.*' -perm /111  -print0)
 for file in "${tmp[@]}"; do
     head -n1 "$file" | grep -Eqs "^#! */[^ ]*/[abkz]*sh" || continue
     filepaths+=("$file")
