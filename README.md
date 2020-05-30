@@ -22,8 +22,6 @@ jobs:
       uses: ludeeus/action-shellcheck@master
 ```
 
-
-
 ## Globally disable checks
 
 To disable specific checks add it to a `SHELLCHECK_OPTS` env key in the job definition.
@@ -37,3 +35,25 @@ example:
       env:
         SHELLCHECK_OPTS: -e SC2059 -e SC2034 -e SC1090
 ```
+
+## Disable paths
+
+You can use the `ignore` input to disable specific directories.
+
+```text
+sample structure:
+sample/directory/with/files/toignore/test.sh
+sample/directory/with/files/test.sh
+```
+
+example:
+
+```yaml
+    ...
+    - name: Run ShellCheck
+      uses: ludeeus/action-shellcheck@master
+      with:
+        ignore: toignore
+```
+
+This will skip `sample/directory/with/files/toignore/test.sh`
