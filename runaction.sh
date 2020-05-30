@@ -11,8 +11,9 @@ statuscode=0
 
 excludes+=( ! -path *./.git/* )
 for path in ${INPUT_IGNORE}; do
-    echo "::debug:: Adding '*./${path}/*' to excludes"
+    echo "::debug:: Adding '${path}' to excludes"
     excludes+=(! -path "*./${path}/*" )
+    excludes+=(! -path "*/${path}/*" )
 done
 
 readarray -d '' filepaths < <(find . "${excludes[@]}" \
