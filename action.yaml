@@ -1,0 +1,14 @@
+name: "ShellCheck"
+author: "Ludeeus <hi@ludeeus.dev>"
+description: "GitHub action for ShellCheck."
+inputs:
+  ignore:
+    description: 'Paths to ignore when running ShellCheck'
+    required: false
+    default: ''
+runs: 
+  using: 'docker'
+  image: 'Dockerfile'
+branding:
+  icon: 'terminal'  
+  color: 'gray-dark'

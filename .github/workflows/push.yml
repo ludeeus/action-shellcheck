@@ -6,5 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: Shellcheck
-      uses: ludeeus/action-shellcheck@master
+    - name: Run Shellcheck
+      uses: ${GITHUB_REPOSITORY}@${GITHUB_SHA}
+      with:
+        ignore: "ignore"

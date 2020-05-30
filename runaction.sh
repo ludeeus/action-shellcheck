@@ -2,13 +2,23 @@
 
 cd "$GITHUB_WORKSPACE" || exit 1
 
-declare err
+declare statuscode
 declare -a filepaths
+declare -a excludes
 declare -a tmp
 
-err=0
+statuscode=0
 
-readarray -d '' filepaths < <(find . '(' \
+excludes+=( ! -path *./.git/* )
+for path in ${INPUT_IGNORE}; do
+     [[ ${path#./*} != "$path" ]] || path=./${path}
+
+    echo "::debug:: Adding '${path}' to excludes"
+    excludes+=(! -path *"${path}"* )
+done
+
+readarray -d '' filepaths < <(find . "${excludes[@]}" \
+    '(' \
     \
     -name '*.bash' \
     -o -path '*/.bash*' \
@@ -37,19 +47,19 @@ readarray -d '' filepaths < <(find . '(' \
     -print0)
 
 
-readarray -d '' tmp < <(find . -type f ! -name '*.*' -perm /111  -print0)
+readarray -d '' tmp < <(find . "${excludes[@]}" -type f ! -name '*.*' -perm /111  -print0)
 for file in "${tmp[@]}"; do
     head -n1 "$file" | grep -Eqs "^#! */[^ ]*/[abkz]*sh" || continue
     filepaths+=("$file")
 done
 
-if  find . -path '*bin/*/*' -type f -perm /111 -print |
+if  find . "${excludes[@]}" -path '*bin/*/*' -type f -perm /111 -print |
     grep .
 then
     echo >&2 "::warning:: subdirectories of bin directories are not usable via PATH"
 fi
 
-if  find . -path '*bin/*' -name '*.*' -type f -perm /111 -perm /444 -print |
+if  find . "${excludes[@]}" -path '*bin/*' -name '*.*' -type f -perm /111 -perm /444 -print |
     grep .
 then
     echo >&2 "::warning:: programs in PATH should not have a filename suffix"
@@ -57,7 +67,7 @@ fi
 
 for file in "${filepaths[@]}"; do
     echo "::debug:: Checking $file"
-    shellcheck "$file" || err=$?
+    shellcheck "$file" || statuscode=$?
 done
 
-exit "$err"
+exit "$statuscode"
