@@ -2,12 +2,12 @@ on: push
 name: 'Trigger: Push'
 jobs:
   shellcheck:
-    name: Shellcheck
+    name: ShellCheck
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@master
-    - name: Run Shellcheck
+    - name: Run ShellCheck
       uses: ./
       with:
         ignore: ignore
