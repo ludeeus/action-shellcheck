@@ -36,7 +36,7 @@ example:
         SHELLCHECK_OPTS: -e SC2059 -e SC2034 -e SC1090
 ```
 
-## Disable paths
+## Ignore paths
 
 You can use the `ignore` input to disable specific directories.
 

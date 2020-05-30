@@ -10,4 +10,4 @@ jobs:
     - name: Run Shellcheck
       uses: ./
       with:
-        ignore: "ignore"
+        ignore: ignore
