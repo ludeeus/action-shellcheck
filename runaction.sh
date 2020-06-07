@@ -10,6 +10,8 @@ declare -a tmp
 statuscode=0
 
 excludes+=( ! -path *./.git/* )
+excludes+=( ! -path *.go )
+
 for path in ${INPUT_IGNORE}; do
     echo "::debug:: Adding '${path}' to excludes"
     excludes+=(! -path "*./${path}/*" )
@@ -38,7 +40,6 @@ readarray -d '' filepaths < <(find . "${excludes[@]}" \
     -o -path '*/zsh*' \
     -o -name '*.sh' \
     -o -path '*/.profile*' \
-    -o -path '*/profile*' \
     -o -path '*/.shlib*' \
     -o -path '*/shlib*' \
        ')'\
