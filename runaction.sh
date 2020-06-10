@@ -11,6 +11,7 @@ statuscode=0
 
 excludes+=( ! -path *./.git/* )
 excludes+=( ! -path *.go )
+excludes+=( ! -path */mvnw )
 
 for path in ${INPUT_IGNORE}; do
     echo "::debug:: Adding '${path}' to excludes"
