@@ -1,5 +1,5 @@
-on: push
-name: 'Trigger: Push'
+on: [push, pull_request]
+name: 'ShellCheck'
 jobs:
   shellcheck:
     name: ShellCheck
