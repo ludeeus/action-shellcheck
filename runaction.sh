@@ -66,9 +66,11 @@ then
     echo >&2 "::warning:: programs in PATH should not have a filename suffix"
 fi
 
+[[ -n "${INPUT_SEVERITY}" ]] && options+=(-S "${INPUT_SEVERITY}")
+
 for file in "${filepaths[@]}"; do
     echo "::debug:: Checking $file"
-    shellcheck "$file" || statuscode=$?
+    shellcheck "${options[@]}" "$file" || statuscode=$?
 done
 
 exit "$statuscode"
