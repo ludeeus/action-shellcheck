@@ -68,9 +68,15 @@ fi
 
 [[ -n "${INPUT_SEVERITY}" ]] && options+=(-S "${INPUT_SEVERITY}")
 
-for file in "${filepaths[@]}"; do
-    echo "::debug:: Checking $file"
-    shellcheck "${options[@]}" "$file" || statuscode=$?
-done
+if [[ -n "$INPUT_CHECK_TOGETHER" ]]; then
+    echo "::debug:: shellcheck ${options[*]} ${filepaths[*]}"
+    shellcheck "${options[@]}" "${filepaths[@]}" || statuscode=$?
+else
+    echo "::debug:: Shellcheck options: ${options[*]}"
+    for file in "${filepaths[@]}"; do
+        echo "::debug:: Checking $file"
+        shellcheck "${options[@]}" "$file" || statuscode=$?
+    done
+fi
 
 exit "$statuscode"
