@@ -10,6 +10,10 @@ inputs:
     description: 'Minimum severity of errors to consider. Options: [error, warning, info, style]'
     required: false
     default: ''
+  check_together:
+    description: 'Run shellcheck on _all_ files at once, instead of one at a time'
+    required: false
+    default: ''
 runs:
   using: 'docker'
   image: 'Dockerfile'

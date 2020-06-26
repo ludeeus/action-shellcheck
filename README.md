@@ -71,3 +71,19 @@ example:
       with:
         severity: error
 ```
+
+## Run shellcheck with all paths in a single invocation
+
+If you run into SC1090/SC1091 errors you may need to tell shellcheck to check
+all files at once:
+
+```yaml
+    ...
+    - name: Run ShellCheck
+    uses: ludeeus/action-shellcheck@master
+    with:
+      check_together: 'yes'
+```
+
+This can turn into a problem if you have enough script files to overwhelm the
+maximum argv length on your system.
