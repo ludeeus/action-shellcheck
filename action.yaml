@@ -6,9 +6,13 @@ inputs:
     description: 'Paths to ignore when running ShellCheck'
     required: false
     default: ''
-runs: 
+  severity:
+    description: 'Minimum severity of errors to consider. Options: [error, warning, info, style]'
+    required: false
+    default: ''
+runs:
   using: 'docker'
   image: 'Dockerfile'
 branding:
-  icon: 'terminal'  
+  icon: 'terminal'
   color: 'gray-dark'

@@ -5,7 +5,7 @@ _GitHub action for ShellCheck._
 ## Example
 
 ```yaml
-on: 
+on:
   push:
     branch:
       - master
@@ -57,3 +57,17 @@ example:
 ```
 
 This will skip `sample/directory/with/files/toignore/test.sh`
+
+## Minimum severity of errors to consider (error, warning, info, style)
+
+You can use the `severity` input to not fail until specified severity is met, for example fail only if there are errors in scripts but ignore styling, info and warnings.
+
+example:
+
+```yaml
+    ...
+    - name: Run ShellCheck
+      uses: ludeeus/action-shellcheck@master
+      with:
+        severity: error
+```
