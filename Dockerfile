@@ -1,6 +1,6 @@
-FROM alpine:3.11.6
+FROM alpine:3.12.0
 
 RUN apk add --no-cache shellcheck bash
 
-COPY runaction.sh /action/runaction.sh
-ENTRYPOINT ["bash", "/action/runaction.sh"]
+COPY runaction /action/runaction
+ENTRYPOINT ["bash", "/action/runaction"]
