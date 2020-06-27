@@ -19,7 +19,7 @@ for path in ${INPUT_IGNORE}; do
     excludes+=(! -path "*/${path}/*" )
 done
 
-readarray -d '' filepaths < <(find . "${excludes[@]}" \
+readarray -d '' filepaths < <(find . -type f "${excludes[@]}" \
     '(' \
     \
     -name '*.bash' \
