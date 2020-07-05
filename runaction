@@ -1,5 +1,8 @@
 #!/bin/bash
 
+## Enable problem matcher
+echo "::add-matcher::.github/problem-matcher.json"
+
 cd "$GITHUB_WORKSPACE" || exit 1
 
 declare statuscode
