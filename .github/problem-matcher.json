@@ -12,7 +12,7 @@
             "regexp": ".*"
           },
           {
-              "regexp": ".*SC\\d+:\\s.+",
+              "regexp": "SC(\\d+):\\s(.+)$",
               "code": 1,
               "message": 2,
               "loop": true
