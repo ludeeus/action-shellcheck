@@ -53,7 +53,7 @@ readarray -d '' filepaths < <(find . -type f "${excludes[@]}" \
 
 readarray -d '' tmp < <(find . "${excludes[@]}" -type f ! -name '*.*' -perm /111  -print0)
 for file in "${tmp[@]}"; do
-    head -n1 "$file" | grep -Eqs "^#! */[^ ]*/[abkz]*sh" || continue
+    head -n1 "$file" | grep -Eqs "^#! */[^ ]*/(env *)?[abkz]*sh" || continue
     filepaths+=("$file")
 done
 
