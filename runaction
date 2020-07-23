@@ -10,6 +10,7 @@ declare -a excludes
 declare -a tmp
 
 statuscode=0
+shebangregex="^#! */[^ ]*/(env *)?[abkz]*sh"
 
 excludes+=( ! -path *./.git/* )
 excludes+=( ! -path *.go )
@@ -48,11 +49,15 @@ readarray -d '' filepaths < <(find . -type f "${excludes[@]}" \
        ')'\
     \
     -print0)
-
+# remove files from filelist without shebang
+for file in "${!filepaths[@]}"; do
+    head -n1 "${filepaths[file]}" | grep -Eqs "$shebangregex" && continue
+    unset 'filepaths[file]'
+done
 
 readarray -d '' tmp < <(find . "${excludes[@]}" -type f ! -name '*.*' -perm /111  -print0)
 for file in "${tmp[@]}"; do
-    head -n1 "$file" | grep -Eqs "^#! */[^ ]*/(env *)?[abkz]*sh" || continue
+    head -n1 "$file" | grep -Eqs "$shebangregex" || continue
     filepaths+=("$file")
 done
 
