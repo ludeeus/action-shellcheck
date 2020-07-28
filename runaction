@@ -10,6 +10,7 @@ declare -a excludes
 declare -a tmp
 
 statuscode=0
+shebangregex="^#! */[^ ]*/(env *)?[abkz]*sh"
 
 excludes+=( ! -path *./.git/* )
 excludes+=( ! -path *.go )
@@ -25,34 +26,38 @@ readarray -d '' filepaths < <(find . -type f "${excludes[@]}" \
     '(' \
     \
     -name '*.bash' \
-    -o -path '*/.bash*' \
-    -o -path '*/bash*' \
+    -o -name '.bashrc' \
+    -o -name 'bashrc' \
+    -o -name '.bash_aliases' \
+    -o -name '.bash_completion' \
+    -o -name '.bash_login' \
+    -o -name '.bash_logout' \
+    -o -name '.bash_profile' \
+    -o -name 'bash_profile' \
     -o -name '*.ksh' \
-    -o -name 'ksh*' \
-    -o -path '*/.ksh*' \
-    -o -path '*/ksh*' \
     -o -name 'suid_profile' \
     -o -name '*.zsh' \
-    -o -name '.zlogin*' \
-    -o -name 'zlogin*' \
-    -o -name '.zlogout*' \
-    -o -name 'zlogout*' \
-    -o -name '.zprofile*' \
-    -o -name 'zprofile*' \
-    -o -path '*/.zsh*' \
-    -o -path '*/zsh*' \
+    -o -name '.zlogin' \
+    -o -name 'zlogin' \
+    -o -name '.zlogout' \
+    -o -name 'zlogout' \
+    -o -name '.zprofile' \
+    -o -name 'zprofile' \
+    -o -name '.zsenv' \
+    -o -name 'zsenv' \
+    -o -name '.zshrc' \
+    -o -name 'zshrc' \
     -o -name '*.sh' \
-    -o -path '*/.profile*' \
-    -o -path '*/.shlib*' \
-    -o -path '*/shlib*' \
+    -o -path '*/.profile' \
+    -o -path '*/profile' \
+    -o -name '*.shlib' \
        ')'\
     \
     -print0)
 
-
 readarray -d '' tmp < <(find . "${excludes[@]}" -type f ! -name '*.*' -perm /111  -print0)
 for file in "${tmp[@]}"; do
-    head -n1 "$file" | grep -Eqs "^#! */[^ ]*/(env *)?[abkz]*sh" || continue
+    head -n1 "$file" | grep -Eqs "$shebangregex" || continue
     filepaths+=("$file")
 done
 
