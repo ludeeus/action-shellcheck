@@ -27,11 +27,8 @@ readarray -d '' filepaths < <(find . -type f "${excludes[@]}" \
     \
     -name '*.bash' \
     -o -path '*/.bash*' \
-    -o -path '*/bash*' \
     -o -name '*.ksh' \
-    -o -name 'ksh*' \
     -o -path '*/.ksh*' \
-    -o -path '*/ksh*' \
     -o -name 'suid_profile' \
     -o -name '*.zsh' \
     -o -name '.zlogin*' \
@@ -41,11 +38,9 @@ readarray -d '' filepaths < <(find . -type f "${excludes[@]}" \
     -o -name '.zprofile*' \
     -o -name 'zprofile*' \
     -o -path '*/.zsh*' \
-    -o -path '*/zsh*' \
     -o -name '*.sh' \
     -o -path '*/.profile*' \
     -o -path '*/.shlib*' \
-    -o -path '*/shlib*' \
        ')'\
     \
     -print0)
