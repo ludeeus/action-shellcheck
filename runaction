@@ -1,8 +1,7 @@
 #!/bin/bash
 
 ## Enable problem matcher
-matcher_path=`pwd`/problem-matcher.json
-cp /problem-matcher.json "$matcher_path"
+cp /problem-matcher.json ./problem-matcher.json
 
 echo "::add-matcher::problem-matcher.json"
 
