@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## Enable problem matcher
-echo "::add-matcher::/problem-matcher.json"
+echo "::add-matcher::./problem-matcher.json"
 
 cd "$GITHUB_WORKSPACE" || exit 1
 
