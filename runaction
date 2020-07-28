@@ -1,7 +1,11 @@
 #!/bin/bash
 
 ## Enable problem matcher
+cp /problem-matcher.json ./problem-matcher.json
 
+echo "::add-matcher::problem-matcher.json"
+
+## Run action
 cd "$GITHUB_WORKSPACE" || exit 1
 
 declare statuscode
