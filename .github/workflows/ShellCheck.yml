@@ -5,8 +5,10 @@ jobs:
     name: ShellCheck
     runs-on: ubuntu-latest
     steps:
+
     - name: Checkout
-      uses: actions/checkout@master
+      uses: actions/checkout@v2
+
     - name: Run ShellCheck
       uses: ./
       with:
