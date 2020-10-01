@@ -26,7 +26,7 @@ for path in ${INPUT_IGNORE}; do
     excludes+=(! -path "*/${path}/*" )
 done
 
-readarray -d '' filepaths < <(find . -type f "${excludes[@]}" \
+readarray -d '' filepaths < <(find "${INPUT_SCANDIR}" -type f "${excludes[@]}" \
     '(' \
     \
     -name '*.bash' \
@@ -59,19 +59,20 @@ readarray -d '' filepaths < <(find . -type f "${excludes[@]}" \
     \
     -print0)
 
-readarray -d '' tmp < <(find . "${excludes[@]}" -type f ! -name '*.*' -perm /111  -print0)
+
+readarray -d '' tmp < <(find "${INPUT_SCANDIR}" "${excludes[@]}" -type f ! -name '*.*' -perm /111  -print0)
 for file in "${tmp[@]}"; do
     head -n1 "$file" | grep -Eqs "$shebangregex" || continue
     filepaths+=("$file")
 done
 
-if  find . "${excludes[@]}" -path '*bin/*/*' -type f -perm /111 -print |
+if  find "${INPUT_SCANDIR}" "${excludes[@]}" -path '*bin/*/*' -type f -perm /111 -print |
     grep .
 then
     echo >&2 "::warning:: subdirectories of bin directories are not usable via PATH"
 fi
 
-if  find . "${excludes[@]}" -path '*bin/*' -name '*.*' -type f -perm /111 -perm /444 -print |
+if  find "${INPUT_SCANDIR}" "${excludes[@]}" -path '*bin/*' -name '*.*' -type f -perm /111 -perm /444 -print |
     grep .
 then
     echo >&2 "::warning:: programs in PATH should not have a filename suffix"
