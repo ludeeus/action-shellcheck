@@ -80,10 +80,23 @@ all files at once:
 ```yaml
     ...
     - name: Run ShellCheck
-    uses: ludeeus/action-shellcheck@master
-    with:
-      check_together: 'yes'
+      uses: ludeeus/action-shellcheck@master
+      with:
+        check_together: 'yes'
 ```
 
 This can turn into a problem if you have enough script files to overwhelm the
 maximum argv length on your system.
+
+## Run shellcheck only in a single directory
+
+If you have multiple directories with scripts, but only want to scan
+one of them, you can use the following configuration:
+
+```yaml
+   ...
+   - name: Run ShellCheck
+     uses: ludeeus/action-shellcheck@master
+     with:
+       scandir: './scripts'
+```

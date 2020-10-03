@@ -14,6 +14,10 @@ inputs:
     description: 'Run shellcheck on _all_ files at once, instead of one at a time'
     required: false
     default: ''
+  scandir:
+    description: 'Directory to be searched for files. Defaults to .'
+    required: false
+    default: '.'
 runs:
   using: 'docker'
   image: 'Dockerfile'
