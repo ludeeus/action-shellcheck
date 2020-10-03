@@ -13,6 +13,7 @@ declare -a filepaths
 declare -a excludes
 declare -a tmp
 
+INPUT_SCANDIR="${INPUT_SCANDIR:-.}"
 statuscode=0
 shebangregex="^#! */[^ ]*/(env *)?[abkz]*sh"
 
