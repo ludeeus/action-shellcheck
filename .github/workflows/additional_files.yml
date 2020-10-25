@@ -1,0 +1,42 @@
+name: 'additional_files'
+
+on: 
+  push:
+    branches: ["master"]
+  pull_request:
+
+jobs:
+  additional_files:
+    name: additional_files
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Run ShellCheck
+      uses: ./
+      id: check
+      with:
+        additional_files: run finish discovery
+        ignore: ignore
+        scandir: testfiles
+
+    - name: Verify check
+      run: | 
+        expect="testfiles/scandir/run"
+
+        if [[ ! "${{ steps.check.outputs.files }}" =~ testfiles/scandir/run ]];then
+          echo "::error:: Expected file testfiles/scandir/run not found in ${{ steps.check.outputs.files }}"
+          exit 1
+        elif [[ ! "${{ steps.check.outputs.files }}" =~ testfiles/scandir/finish ]];then
+          echo "::error:: Expected file testfiles/scandir/finish not found in ${{ steps.check.outputs.files }}"
+          exit 1
+        elif [[ ! "${{ steps.check.outputs.files }}" =~ testfiles/scandir/discovery ]];then
+          echo "::error:: Expected file testfiles/scandir/discovery not found in ${{ steps.check.outputs.files }}"
+          exit 1
+        fi 
