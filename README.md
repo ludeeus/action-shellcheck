@@ -100,3 +100,28 @@ one of them, you can use the following configuration:
      with:
        scandir: './scripts'
 ```
+
+## Scan for additional files
+
+If you need to scan for unusual files, you can use the `additional_files` key.
+
+```yaml
+   ...
+   - name: Run ShellCheck
+     uses: ludeeus/action-shellcheck@master
+     with:
+       additional_files: 'run finish'
+```
+
+## Disable problem matcher
+
+If you do not want to have the problem-matcher annotate files, you can disable it
+by setting `disable_matcher` to `true`.
+
+```yaml
+   ...
+   - name: Run ShellCheck
+     uses: ludeeus/action-shellcheck@master
+     with:
+       disable_matcher: true
+```

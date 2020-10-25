@@ -22,7 +22,7 @@ inputs:
     description: "Directory to be searched for files. Defaults to ."
     required: false
     default: "."
-  skip_matcher:
+  disable_matcher:
     description: "Set to true to skip using problem-matcher"
     required: false
     default: "false"
@@ -42,7 +42,7 @@ runs:
     - name: Enable problem-matcher
       shell: bash
       run: |
-        if [[ ${{ inputs.skip_matcher }} != "true" ]]; then
+        if [[ ${{ inputs.disable_matcher }} != "true" ]]; then
           echo "::add-matcher::${{ github.action_path }}/.github/problem-matcher.json"
         fi
 
