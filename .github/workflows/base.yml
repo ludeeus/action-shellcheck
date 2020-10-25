@@ -1,0 +1,38 @@
+name: 'base'
+
+on: 
+  push:
+    branches: ["master"]
+  pull_request:
+
+jobs:
+  base:
+    name: base
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Run ShellCheck
+      uses: ./
+      id: check
+      with:
+        ignore: ignore
+
+    - name: Verify check
+      run: | 
+        expect="testfiles/test.bash"
+        notexpect="testfiles/ignore/ignore.bash"
+
+        if [[ ! "${{ steps.check.outputs.files }}" =~ $expect ]];then
+          echo "::error:: Expected file $expect not found in ${{ steps.check.outputs.files }}"
+          exit 1
+        elif [[ "${{ steps.check.outputs.files }}" =~ $notexpect ]];then
+          echo "::error:: Expected file $notexpect found in ${{ steps.check.outputs.files }}"
+          exit 1
+        fi 
