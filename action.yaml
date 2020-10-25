@@ -143,7 +143,7 @@ runs:
           filepaths+=("$path");
         done
 
-        for file in $(find "${{ inputs.scandir }}" ${{ steps.exclude.outputs.excludes }} -type f ! -name '*.*' -perm /111  -print0); do
+        for file in $(find "${{ inputs.scandir }}" ${{ steps.exclude.outputs.excludes }} -type f ! -name '*.*' -perm /111  -print); do
           head -n1 "$file" | grep -Eqs "$shebangregex" || continue
           filepaths+=("$file");
         done
