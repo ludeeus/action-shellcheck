@@ -42,7 +42,8 @@ You can use the `ignore` input to disable specific directories.
 
 ```text
 sample structure:
-sample/directory/with/files/toignore/test.sh
+sample/directory/with/files/ignoreme/test.sh
+sample/directory/with/files/ignoremetoo/test.sh
 sample/directory/with/files/test.sh
 ```
 
@@ -53,10 +54,10 @@ example:
     - name: Run ShellCheck
       uses: ludeeus/action-shellcheck@master
       with:
-        ignore: toignore
+        ignore: ignoreme ignoremetoo
 ```
 
-This will skip `sample/directory/with/files/toignore/test.sh`
+This will skip `sample/directory/with/files/ignoreme/test.sh` and `sample/directory/with/files/ignoremetoo/test.sh`
 
 ## Minimum severity of errors to consider (error, warning, info, style)
 
