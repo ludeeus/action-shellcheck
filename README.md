@@ -22,9 +22,14 @@ jobs:
       uses: ludeeus/action-shellcheck@master
 ```
 
-## Globally disable checks
+## ShellCheck options
 
-To disable specific checks add it to a `SHELLCHECK_OPTS` env key in the job definition.
+You can pass any supported ShellCheck option or flag with the `SHELLCHECK_OPTS` env key in the job definition.
+
+Some examples include:
+
+* To disable specific checks (eg: `-e SC2059 -e SC2034 -e SC1090`)
+* To test against different shells (eg: `-s dash` or `-s ksh`)
 
 example:
 
