@@ -3,7 +3,7 @@ author: "Ludeeus <hi@ludeeus.dev>"
 description: "GitHub action for ShellCheck."
 inputs:
   additional_files:
-    description: "A space seperated list of additional filename to check"
+    description: "A space separated list of additional filename to check"
     required: false
     default: ""
   ignore:
