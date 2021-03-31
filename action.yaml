@@ -29,7 +29,7 @@ inputs:
   format:
     description: "Output format (checkstyle, diff, gcc, json, json1, quiet, tty)"
     required: false
-    default: "tty"
+    default: "gcc"
 outputs:
   files:
     description: A list of files with issues
