@@ -131,3 +131,16 @@ by setting `disable_matcher` to `true`.
      with:
        disable_matcher: true
 ```
+
+## Change output format
+
+Shellcheck can print output in these formats: `checkstyle`, `diff`, `gcc`, `json`, `json1`, `quiet`, `tty`. See some examples [here](https://github.com/koalaman/shellcheck/wiki/Integration#pick-the-output-format-that-makes-your-life-easier).
+Only `tty` and `gcc` produce file annotations via problem matcher. Default format is `gcc` since its provides more information to the problem matcher.
+
+```yaml
+   ...
+   - name: Run ShellCheck
+     uses: ludeeus/action-shellcheck@master
+     with:
+       format: tty
+```
