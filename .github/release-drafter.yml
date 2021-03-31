@@ -1,0 +1,8 @@
+change-template: '- #$NUMBER $TITLE @$AUTHOR'
+sort-direction: ascending
+exclude-labels:
+  - "release-drafter-ignore"
+template: |
+  ## What’s Changed
+
+  $CHANGES
