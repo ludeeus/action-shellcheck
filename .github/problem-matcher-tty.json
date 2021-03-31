@@ -1,7 +1,7 @@
 {
     "problemMatcher": [
       {
-        "owner": "shellcheck",
+        "owner": "shellcheck-tty",
         "pattern": [
           {
               "regexp": "^In\\s(.+)\\sline\\s(\\d+):$",
