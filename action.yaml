@@ -38,12 +38,12 @@ branding:
   color: "gray-dark"
 runs:
   using: "composite"
-  steps: 
+  steps:
     - name: Enable problem-matcher
       shell: bash
       run: |
         if [[ ${{ inputs.disable_matcher }} != "true" ]]; then
-          echo "::add-matcher::${{ github.action_path }}/.github/problem-matcher.json"
+          echo "::add-matcher::${{ github.action_path }}/.github/problem-matcher-tty.json"
         fi
 
     - name: Download shellcheck
@@ -190,7 +190,7 @@ runs:
             "$file" || statuscode=$?;
           done
         fi
-        
+
         echo "::set-output name=statuscode::$statuscode"
 
     - name: Print information
