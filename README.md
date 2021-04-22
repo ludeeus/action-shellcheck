@@ -147,3 +147,15 @@ Only `tty` and `gcc` produce file annotations via problem matcher, default is `g
      with:
        format: tty
 ```
+
+## Run a specific version of Shellcheck
+
+If running the latest stable version of Shellcheck is not to your liking, you can specify a concrete version of Shellcheck to be used. When specifying a custom version, please use any of the released versions listed in the [Shellcheck repository](https://github.com/koalaman/shellcheck/tags).
+
+```yaml
+   ...
+   - name: Run ShellCheck
+     uses: ludeeus/action-shellcheck@master
+     with:
+       shellcheck_version: v0.7.0
+```
