@@ -117,7 +117,7 @@ runs:
       id: filepaths
       run: |
         declare -a filepaths
-        shebangregex="^#! */[^ ]*/(env *)?[abkz]*sh"
+        shebangregex="^#! */[^ ]*/(env *)?[abk]*sh"
 
         for path in $(find "${{ inputs.scandir }}" \
             -type f -type f ${{ steps.exclude.outputs.excludes }} \
