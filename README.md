@@ -7,7 +7,7 @@ _GitHub action for ShellCheck._
 ```yaml
 on:
   push:
-    branch:
+    branches:
       - master
 
 name: 'Trigger: Push action'
