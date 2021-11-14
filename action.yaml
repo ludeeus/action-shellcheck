@@ -30,7 +30,7 @@ inputs:
     description: "Output format (checkstyle, diff, gcc, json, json1, quiet, tty)"
     required: false
     default: "gcc"
-  shellcheck_version:
+  version:
     description: "Specify a concrete version of ShellCheck to use"
     required: false
     default: "stable"
@@ -64,7 +64,7 @@ runs:
           osvariant="linux"
         fi
 
-        scversion="${{ inputs.shellcheck_version }}"
+        scversion="${{ inputs.version }}"
         baseurl="https://github.com/koalaman/shellcheck/releases/download"
 
         curl -Lso "${{ github.action_path }}/sc.tar.xz" \
