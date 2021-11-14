@@ -41,15 +41,16 @@ example:
         SHELLCHECK_OPTS: -e SC2059 -e SC2034 -e SC1090
 ```
 
-## Ignore paths
+## Ignore paths and names
 
-You can use the `ignore` input to disable specific directories.
+You can use the `ignore_paths` and `ignore_names` input to disable specific directories and files.
 
 ```text
 sample structure:
 sample/directory/with/files/ignoreme/test.sh
 sample/directory/with/files/ignoremetoo/test.sh
 sample/directory/with/files/test.sh
+sample/directory/with/files/ignorable.sh
 ```
 
 example:
@@ -59,10 +60,11 @@ example:
     - name: Run ShellCheck
       uses: ludeeus/action-shellcheck@master
       with:
-        ignore: ignoreme ignoremetoo
+        ignore_paths: ignoreme ignoremetoo
+        ignore_names: ignorable.sh
 ```
 
-This will skip `sample/directory/with/files/ignoreme/test.sh` and `sample/directory/with/files/ignoremetoo/test.sh`
+This will skip `sample/directory/with/files/ignoreme/test.sh`, `sample/directory/with/files/ignoremetoo/test.sh` and `sample/directory/with/files/ignorable.sh`.
 
 ## Minimum severity of errors to consider (error, warning, info, style)
 

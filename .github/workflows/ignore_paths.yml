@@ -1,4 +1,4 @@
-name: 'base'
+name: 'ignore_paths'
 
 on: 
   push:
@@ -6,8 +6,8 @@ on:
   pull_request:
 
 jobs:
-  base:
-    name: base
+  ignore_paths:
+    name: ignore_paths
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -22,7 +22,7 @@ jobs:
       uses: ./
       id: check
       with:
-        ignore: ignore
+        ignore_paths: ignore
 
     - name: Verify check
       run: | 
@@ -35,4 +35,4 @@ jobs:
         elif [[ "${{ steps.check.outputs.files }}" =~ $notexpect ]];then
           echo "::error:: Expected file $notexpect found in ${{ steps.check.outputs.files }}"
           exit 1
-        fi 
+        fi

@@ -23,7 +23,7 @@ jobs:
       id: check
       with:
         additional_files: run finish discovery
-        ignore: ignore
+        ignore_paths: ignore
         scandir: testfiles
 
     - name: Verify check

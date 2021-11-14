@@ -10,6 +10,14 @@ inputs:
     description: "Paths to ignore when running ShellCheck"
     required: false
     default: ""
+  ignore_paths:
+    description: "Paths to ignore when running ShellCheck"
+    required: false
+    default: ""
+  ignore_names:
+    description: "Names to ignore when running ShellCheck"
+    required: false
+    default: ""
   severity:
     description: "Minimum severity of errors to consider. Options: [error, warning, info, style]"
     required: false
@@ -98,10 +106,24 @@ runs:
         excludes+=("! -path \"*./.git/*\"")
         excludes+=("! -path \"*.go\"")
         excludes+=("! -path \"*/mvnw\"")
-        for path in ${{ inputs.ignore }}; do
-          echo "::debug:: Adding "$path" to excludes"
-          excludes+=("! -path \"*./$path/*\"")
-          excludes+=("! -path \"*/$path/*\"")
+        if [[ -n "${{ inputs.ignore }}" ]]; then
+          echo "::warning::ignore is deprecated. Please use ignore_paths instead"
+          for path in ${{ inputs.ignore }}; do
+            echo "::debug:: Adding "$path" to excludes"
+            excludes+=("! -path \"*./$path/*\"")
+            excludes+=("! -path \"*/$path/*\"")
+          done
+        else
+          for path in ${{ inputs.ignore_paths }}; do
+            echo "::debug:: Adding "$path" to excludes"
+            excludes+=("! -path \"*./$path/*\"")
+            excludes+=("! -path \"*/$path/*\"")
+          done
+        fi
+
+        for name in ${{ inputs.ignore_names }}; do
+          echo "::debug:: Adding "$name" to excludes"
+          excludes+=("! -name $name")
         done
         echo "::set-output name=excludes::${excludes[@]}"
 

@@ -42,7 +42,7 @@ jobs:
       id: two
       with:
         scandir: './testfiles/scandir'
-        ignore: ignore
+        ignore_paths: ignore
 
     - name: Verify check
       run: | 
