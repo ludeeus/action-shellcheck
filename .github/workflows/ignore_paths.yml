@@ -1,4 +1,4 @@
-name: 'check_together'
+name: 'ignore_paths'
 
 on: 
   push:
@@ -6,8 +6,8 @@ on:
   pull_request:
 
 jobs:
-  check_together:
-    name: check_together
+  ignore_paths:
+    name: ignore_paths
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -23,7 +23,6 @@ jobs:
       id: check
       with:
         ignore_paths: ignore
-        check_together: true
 
     - name: Verify check
       run: | 
@@ -37,3 +36,6 @@ jobs:
           echo "::error:: Expected file $notexpect found in ${{ steps.check.outputs.files }}"
           exit 1
         fi 
+
+
+ignore_single_file.sh

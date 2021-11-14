@@ -1,4 +1,4 @@
-name: 'base'
+name: 'ignore_names'
 
 on: 
   push:
@@ -6,8 +6,8 @@ on:
   pull_request:
 
 jobs:
-  base:
-    name: base
+  ignore_names:
+    name: ignore_names
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -22,12 +22,12 @@ jobs:
       uses: ./
       id: check
       with:
-        ignore: ignore
+        ignore_names: ignore_single_file.sh
 
     - name: Verify check
       run: | 
         expect="testfiles/test.bash"
-        notexpect="testfiles/ignore/ignore.bash"
+        notexpect="testfiles/ignore_single_file.sh"
 
         if [[ ! "${{ steps.check.outputs.files }}" =~ $expect ]];then
           echo "::error:: Expected file $expect not found in ${{ steps.check.outputs.files }}"
@@ -36,3 +36,5 @@ jobs:
           echo "::error:: Expected file $notexpect found in ${{ steps.check.outputs.files }}"
           exit 1
         fi 
+
+
