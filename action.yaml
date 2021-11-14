@@ -164,24 +164,6 @@ runs:
         done
         echo "::set-output name=filepaths::${filepaths[@]}"
 
-    - name: Check bin subdirs
-      shell: bash
-      run: |
-        if  find "${{ inputs.scandir }}" ${{ steps.exclude.outputs.excludes }} -path '*bin/*/*' -type f -perm /111 -print |
-            grep .
-        then
-            echo "::warning:: subdirectories of bin directories are not usable via PATH"
-        fi
-
-    - name: Check no suffix in PATH
-      shell: bash
-      run: |
-        if  find "${{ inputs.scandir }}" ${{ steps.exclude.outputs.excludes }} -path '*bin/*' -name '*.*' -type f -perm /111 -perm /444 -print |
-            grep .
-        then
-            echo "::warning:: programs in PATH should not have a filename suffix"
-        fi
-
     - name: Run the file check
       id: check
       shell: bash
