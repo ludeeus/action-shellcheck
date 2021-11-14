@@ -22,6 +22,7 @@ jobs:
       uses: ./
       id: check
       with:
+        ignore_paths: ignore
         ignore_names: ignore_single_file.sh
 
     - name: Verify check

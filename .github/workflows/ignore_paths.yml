@@ -35,7 +35,4 @@ jobs:
         elif [[ "${{ steps.check.outputs.files }}" =~ $notexpect ]];then
           echo "::error:: Expected file $notexpect found in ${{ steps.check.outputs.files }}"
           exit 1
-        fi 
-
-
-ignore_single_file.sh
+        fi
