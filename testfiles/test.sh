@@ -1,4 +1,7 @@
 #!/usr/bin/sh
 
 test="test"
-echo "$test"
+echo $test
+
+
+FOO=${BAR}

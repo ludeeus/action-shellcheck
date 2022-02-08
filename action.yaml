@@ -95,7 +95,7 @@ runs:
         if [[ -n "${{ inputs.severity }}" ]]; then
           options+=("-S ${{ inputs.severity }}")
         fi
-        options+=("--format=${{ inputs.format }}")
+        options+=("--format=json")
         echo "::set-output name=options::${options[@]}"
 
     - name: Gather excluded paths
@@ -192,16 +192,24 @@ runs:
       run: |
         statuscode=0
 
-        if [[ -n "${{ inputs.check_together }}" ]]; then
-           "${{ github.action_path }}/shellcheck" \
-           ${{ steps.options.outputs.options }} \
-           ${{ steps.filepaths.outputs.filepaths }} || statuscode=$?
-        else
-          for file in ${{ steps.filepaths.outputs.filepaths }}; do
-            echo "::debug::Checking $file"
-            "${{ github.action_path }}/shellcheck" \
-            ${{ steps.options.outputs.options }} \
-            "$file" || statuscode=$?;
+        _printRows() {
+          for row in $(echo "${1}" | jq -r '.[] | @base64'); do
+              _jq() { echo "${row}" | base64 --decode | jq -r "${1}";};
+              echo "::$(_jq '.level') file=$(_jq '.file'),line=$(_jq '.line'),col=$(_jq '.column'),endColumn=$(_jq '.endColumn')::$(_jq '.message')";  
+          done
+        }
+
+        ${{ github.action_path }}/shellcheck ${{ steps.options.outputs.options }} ${{ steps.filepaths.outputs.filepaths }} | jq -r .
+
+        rows=$(${{ github.action_path }}/shellcheck ${{ steps.options.outputs.options }} ${{ steps.filepaths.outputs.filepaths }} | jq -r .)
+        echo $rows
+
+        if [[ "$(echo "${rows}" | jq -r '. | length')" != "0"  ]]; then
+          statuscode=1
+          echo $statuscode
+          for row in $(echo ${rows} | jq -r '.[] | @base64'); do
+              _jq() { echo "${row}" | base64 --decode | jq -r "${1}";};
+              echo "::$(_jq '.level') file=$(_jq '.file'),line=$(_jq '.line'),col=$(_jq '.column'),endColumn=$(_jq '.endColumn')::$(_jq '.message')";  
           done
         fi
 
