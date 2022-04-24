@@ -10,16 +10,16 @@ on:
     branches:
       - master
 
-name: 'Trigger: Push action'
+name: "Trigger: Push action"
 
 jobs:
   shellcheck:
     name: Shellcheck
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Run ShellCheck
-      uses: ludeeus/action-shellcheck@master
+      - uses: actions/checkout@v2
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
 ```
 
 ## ShellCheck options
@@ -28,8 +28,8 @@ You can pass any supported ShellCheck option or flag with the `SHELLCHECK_OPTS` 
 
 Some examples include:
 
-* To disable specific checks (eg: `-e SC2059 -e SC2034 -e SC1090`)
-* To test against different shells (eg: `-s dash` or `-s ksh`)
+- To disable specific checks (eg: `-e SC2059 -e SC2034 -e SC1090`)
+- To test against different shells (eg: `-s dash` or `-s ksh`)
 
 example:
 
@@ -65,6 +65,20 @@ example:
 ```
 
 This will skip `sample/directory/with/files/ignoreme/test.sh`, `sample/directory/with/files/ignoremetoo/test.sh` and `sample/directory/with/files/ignorable.sh`.
+
+You can also ignore specific files using full paths or glob patterns with `ignore_paths`.
+
+example:
+
+```yaml
+    ...
+    - name: Run ShellCheck
+      uses: ludeeus/action-shellcheck@master
+      with:
+        ignore_paths: ./sample/directory/with/files/ignorable.sh **/ignoreme/test.sh
+```
+
+This will skip `sample/directory/with/files/ignorable.sh` and `sample/directory/with/files/ignoreme/test.sh`.
 
 ## Minimum severity of errors to consider (error, warning, info, style)
 
