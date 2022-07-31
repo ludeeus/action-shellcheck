@@ -45,7 +45,7 @@ inputs:
 outputs:
   files:
     description: A list of files with issues
-    value: ${{ steps.filepaths.outputs.filepaths }}
+    value: ${{ steps.check.outputs.filepaths }}
   options:
     description: The options used
     value: ${{ steps.options.outputs.options }}
@@ -109,20 +109,20 @@ runs:
         if [[ -n "${{ inputs.ignore }}" ]]; then
           echo "::warning::ignore is deprecated. Please use ignore_paths instead"
           for path in ${{ inputs.ignore }}; do
-            echo "::debug:: Adding "$path" to excludes"
+            echo "::debug:: Adding '$path' to excludes"
             excludes+=("! -path \"*./$path/*\"")
             excludes+=("! -path \"*/$path/*\"")
           done
         else
           for path in ${{ inputs.ignore_paths }}; do
-            echo "::debug:: Adding "$path" to excludes"
+            echo "::debug:: Adding '$path' to excludes"
             excludes+=("! -path \"*./$path/*\"")
             excludes+=("! -path \"*/$path/*\"")
           done
         fi
 
         for name in ${{ inputs.ignore_names }}; do
-          echo "::debug:: Adding "$name" to excludes"
+          echo "::debug:: Adding '$name' to excludes"
           excludes+=("! -name $name")
         done
         echo "::set-output name=excludes::${excludes[@]}"
@@ -133,20 +133,24 @@ runs:
       run: |
         declare -a files
         for file in ${{ inputs.additional_files }}; do
-          echo "::debug:: Adding "$file" to excludes"
+          echo "::debug:: Adding '$file' to excludes"
           files+=("-o -name \"*$file\"")
         done
         echo "::set-output name=files::${files[@]}"
 
-    - name: Gather base file paths
+    - name: Run the check
       shell: bash
-      id: filepaths
+      id: check
       run: |
+        statuscode=0
         declare -a filepaths
         shebangregex="^#! */[^ ]*/(env *)?[abk]*sh"
 
-        for path in $(find "${{ inputs.scandir }}" \
-            -type f -type f ${{ steps.exclude.outputs.excludes }} \
+        while IFS= read -r -d '' file; do
+          filepaths+=("$file")
+        done < <(find "${{ inputs.scandir }}" \
+            ${{ steps.exclude.outputs.excludes }} \
+            -type f \
             '(' \
             -name '*.bash' \
             -o -name '.bashrc' \
@@ -175,44 +179,39 @@ runs:
             -o -path '*/profile' \
             -o -name '*.shlib' \
             ${{ steps.additional.outputs.files }} \
-              ')'\
-            -print); do
-          filepaths+=("$path");
-        done
+            ')' \
+            -print0)
 
-        for file in $(find "${{ inputs.scandir }}" ${{ steps.exclude.outputs.excludes }} -type f ! -name '*.*' -perm /111  -print); do
+        while IFS= read -r -d '' file; do
           head -n1 "$file" | grep -Eqs "$shebangregex" || continue
-          filepaths+=("$file");
-        done
-        echo "::set-output name=filepaths::${filepaths[@]}"
-
-    - name: Run the file check
-      id: check
-      shell: bash
-      run: |
-        statuscode=0
+          filepaths+=("$file")
+        done < <(find "${{ inputs.scandir }}" \
+            ${{ steps.exclude.outputs.excludes }} \
+            -type f ! -name '*.*' -perm /111 \
+            -print0)
 
         if [[ -n "${{ inputs.check_together }}" ]]; then
-           "${{ github.action_path }}/shellcheck" \
-           ${{ steps.options.outputs.options }} \
-           ${{ steps.filepaths.outputs.filepaths }} || statuscode=$?
-        else
-          for file in ${{ steps.filepaths.outputs.filepaths }}; do
-            echo "::debug::Checking $file"
-            "${{ github.action_path }}/shellcheck" \
+          "${{ github.action_path }}/shellcheck" \
             ${{ steps.options.outputs.options }} \
-            "$file" || statuscode=$?;
+            "${filepaths[@]}" || statuscode=$?
+        else
+          for file in "${filepaths[@]}"; do
+            echo "::debug::Checking '$file'"
+            "${{ github.action_path }}/shellcheck" \
+              ${{ steps.options.outputs.options }} \
+              "$file" || statuscode=$?
           done
         fi
 
+        echo "::set-output name=filepaths::${filepaths[@]}"
         echo "::set-output name=statuscode::$statuscode"
 
     - name: Print information
       shell: bash
       run: |
-        echo "Files: ${{steps.filepaths.outputs.filepaths}}"
+        echo "Files: ${{ steps.check.outputs.filepaths }}"
         echo "Excluded: ${{ steps.exclude.outputs.excludes }}"
         echo "Options: ${{ steps.options.outputs.options }}"
-        echo "Status code: ${{steps.check.outputs.statuscode}}"
+        echo "Status code: ${{ steps.check.outputs.statuscode }}"
 
         exit ${{steps.check.outputs.statuscode}}
