@@ -1,0 +1,41 @@
+name: Code scanning alerts
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+
+jobs:
+  code_scanning_alerts:
+    name: code_scanning_alerts
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Run ShellCheck
+      uses: ./
+      id: check
+      with:
+        format: sarif
+        output: scan-results
+
+    - name: Verify check
+      run: |
+        output="scan-results/shellcheck.sarif"
+        if ! [[ -f "$output" ]]; then
+          echo "::error:: Expected file not found"
+          exit 1
+        else
+          cat "$output"
+        fi
+
+    - name: Upload SARIF file
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: scan-results

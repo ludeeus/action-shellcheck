@@ -35,9 +35,13 @@ inputs:
     required: false
     default: "false"
   format:
-    description: "Output format (checkstyle, diff, gcc, json, json1, quiet, tty)"
+    description: "Output format (checkstyle, diff, gcc, json, json1, quiet, sarif, tty)"
     required: false
     default: "gcc"
+  output:
+    description: "The path of the directory in which to save the SARIF results"
+    required: false
+    default: "results"
   version:
     description: "Specify a concrete version of ShellCheck to use"
     required: false
@@ -82,6 +86,28 @@ runs:
         mv "${{ github.action_path }}/shellcheck-${scversion}/shellcheck" \
           "${{ github.action_path }}/shellcheck"
 
+    - name: Download shellcheck-sarif
+      shell: bash
+      run: |
+        if [[ "${{ inputs.format }}" == "sarif" ]]; then
+
+          if [[ "${{ runner.os }}" == "macOS" ]]; then
+            osvariant="x86_64-apple-darwin"
+          else
+            osvariant="x86_64-unknown-linux-gnu"
+          fi
+
+          scsversion="v0.3.1"
+          baseurl="https://github.com/psastras/sarif-rs/releases/download"
+
+          if [[ "${{ inputs.format }}" == "sarif" ]]; then
+            curl -sSL -o "${{ github.action_path }}/shellcheck-sarif" \
+              "${baseurl}/shellcheck-sarif-${scsversion}/shellcheck-sarif-${osvariant}"
+            chmod +x "${{ github.action_path }}/shellcheck-sarif"
+          fi
+
+        fi
+
     - name: Display shellcheck version
       shell: bash
       run: |
@@ -95,7 +121,11 @@ runs:
         if [[ -n "${{ inputs.severity }}" ]]; then
           options+=("-S ${{ inputs.severity }}")
         fi
-        options+=("--format=${{ inputs.format }}")
+        if [[ "${{ inputs.format }}" == "sarif" ]]; then
+          options+=("--format=json")
+        else
+          options+=("--format=${{ inputs.format }}")
+        fi
         echo "::set-output name=options::${options[@]}"
 
     - name: Gather excluded paths
@@ -190,7 +220,14 @@ runs:
             -type f ! -name '*.*' -perm /111 \
             -print0)
 
-        if [[ -n "${{ inputs.check_together }}" ]]; then
+        if [[ "${{ inputs.format }}" == "sarif" ]]; then
+          mkdir -p "${{ inputs.output }}"
+          "${{ github.action_path }}/shellcheck" \
+              ${{ steps.options.outputs.options }} \
+              "${filepaths[@]}" | \
+            "${{ github.action_path }}/shellcheck-sarif" \
+              --output "${{ inputs.output }}/shellcheck.sarif" || true
+        elif [[ -n "${{ inputs.check_together }}" ]]; then
           "${{ github.action_path }}/shellcheck" \
             ${{ steps.options.outputs.options }} \
             "${filepaths[@]}" || statuscode=$?
