@@ -174,9 +174,11 @@ runs:
       run: |
         statuscode=0
         declare -a filepaths
+        leaddotregex="^./(.*)"
         shebangregex="^#! */[^ ]*/(env *)?[abk]*sh"
 
         while IFS= read -r -d '' file; do
+          [[ "$file" =~ $leaddotregex ]] && file="${BASH_REMATCH[1]}"
           filepaths+=("$file")
         done < <(find "${{ inputs.scandir }}" \
             ${{ steps.exclude.outputs.excludes }} \
@@ -214,6 +216,7 @@ runs:
 
         while IFS= read -r -d '' file; do
           head -n1 "$file" | grep -Eqs "$shebangregex" || continue
+          [[ "$file" =~ $leaddotregex ]] && file="${BASH_REMATCH[1]}"
           filepaths+=("$file")
         done < <(find "${{ inputs.scandir }}" \
             ${{ steps.exclude.outputs.excludes }} \
