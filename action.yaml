@@ -57,14 +57,19 @@ runs:
   steps:
     - name: Enable problem-matcher
       shell: bash
+      env:
+        format: ${{ inputs.format }}
+        disable_matcher: ${{ inputs.disable_matcher }}
       run: |
-        problem_matcher_file="${GITHUB_ACTION_PATH}/.github/problem-matcher-${{ inputs.format }}.json"
-        if [[ ${{ inputs.disable_matcher }} != "true" && -f "$problem_matcher_file"  ]]; then
+        problem_matcher_file="${GITHUB_ACTION_PATH}/.github/problem-matcher-${format}.json"
+        if [[ "${disable_matcher}" != "true" && -f "$problem_matcher_file"  ]]; then
           echo "::add-matcher::$problem_matcher_file"
         fi
 
     - name: Download shellcheck
       shell: bash
+      env:
+        scversion: ${{ inputs.version }}
       run: |
         if [[ "${RUNNER_OS}" == "macOS" ]]; then
           osvariant="darwin"
@@ -72,7 +77,6 @@ runs:
           osvariant="linux"
         fi
 
-        scversion="${{ inputs.version }}"
         baseurl="https://github.com/koalaman/shellcheck/releases/download"
 
         curl -Lso "${GITHUB_ACTION_PATH}/sc.tar.xz" \
@@ -90,38 +94,45 @@ runs:
     - name: Set options
       shell: bash
       id: options
+      env:
+        severity: ${{ inputs.severity }}
+        format: ${{ inputs.format }}
       run: |
         declare -a options
-        if [[ -n "${{ inputs.severity }}" ]]; then
-          options+=("-S ${{ inputs.severity }}")
+        if [[ -n "${severity}" ]]; then
+          options+=("-S ${severity}")
         fi
-        options+=("--format=${{ inputs.format }}")
+        options+=("--format=${format}")
         echo "::set-output name=options::${options[@]}"
 
     - name: Gather excluded paths
       shell: bash
       id: exclude
+      env:
+        ignore: ${{ inputs.ignore }}
+        ignore_paths: ${{ inputs.ignore_paths }}
+        ignore_names: ${{ inputs.ignore_names }}
       run: |
         declare -a excludes
         excludes+=("! -path \"*./.git/*\"")
         excludes+=("! -path \"*.go\"")
         excludes+=("! -path \"*/mvnw\"")
-        if [[ -n "${{ inputs.ignore }}" ]]; then
+        if [[ -n "${ignore}" ]]; then
           echo "::warning::ignore is deprecated. Please use ignore_paths instead"
-          for path in ${{ inputs.ignore }}; do
+          for path in ${ignore}; do
             echo "::debug:: Adding "$path" to excludes"
             excludes+=("! -path \"*./$path/*\"")
             excludes+=("! -path \"*/$path/*\"")
           done
         else
-          for path in ${{ inputs.ignore_paths }}; do
+          for path in ${ignore_paths}; do
             echo "::debug:: Adding "$path" to excludes"
             excludes+=("! -path \"*./$path/*\"")
             excludes+=("! -path \"*/$path/*\"")
           done
         fi
 
-        for name in ${{ inputs.ignore_names }}; do
+        for name in ${ignore_names}; do
           echo "::debug:: Adding "$name" to excludes"
           excludes+=("! -name $name")
         done
@@ -130,9 +141,11 @@ runs:
     - name: Gather additional files
       shell: bash
       id: additional
+      env:
+        additional_files: ${{ inputs.additional_files }}
       run: |
         declare -a files
-        for file in ${{ inputs.additional_files }}; do
+        for file in ${additional_files}; do
           echo "::debug:: Adding "$file" to excludes"
           files+=("-o -name \"*$file\"")
         done
@@ -141,11 +154,13 @@ runs:
     - name: Gather base file paths
       shell: bash
       id: filepaths
+      env:
+        scandir: ${{ inputs.scandir }}
       run: |
         declare -a filepaths
         shebangregex="^#! */[^ ]*/(env *)?[abk]*sh"
 
-        for path in $(find "${{ inputs.scandir }}" \
+        for path in $(find "${scandir}" \
             -type f -type f ${{ steps.exclude.outputs.excludes }} \
             '(' \
             -name '*.bash' \
@@ -180,7 +195,7 @@ runs:
           filepaths+=("$path");
         done
 
-        for file in $(find "${{ inputs.scandir }}" ${{ steps.exclude.outputs.excludes }} -type f ! -name '*.*' -perm /111  -print); do
+        for file in $(find "${scandir}" ${{ steps.exclude.outputs.excludes }} -type f ! -name '*.*' -perm /111  -print); do
           head -n1 "$file" | grep -Eqs "$shebangregex" || continue
           filepaths+=("$file");
         done
@@ -189,10 +204,12 @@ runs:
     - name: Run the file check
       id: check
       shell: bash
+      env:
+        check_together: ${{ inputs.check_together }}
       run: |
         statuscode=0
 
-        if [[ -n "${{ inputs.check_together }}" ]]; then
+        if [[ -n "${check_together}" ]]; then
            "${GITHUB_ACTION_PATH}/shellcheck" \
            ${{ steps.options.outputs.options }} \
            ${{ steps.filepaths.outputs.filepaths }} || statuscode=$?
