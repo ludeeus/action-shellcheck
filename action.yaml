@@ -156,12 +156,14 @@ runs:
       id: filepaths
       env:
         scandir: ${{ inputs.scandir }}
+        exclude_args: ${{ steps.exclude.outputs.excludes }}
+        additional_file_args: ${{ steps.additional.outputs.files }}
       run: |
         declare -a filepaths
         shebangregex="^#! */[^ ]*/(env *)?[abk]*sh"
 
         for path in $(find "${scandir}" \
-            -type f -type f ${{ steps.exclude.outputs.excludes }} \
+            -type f -type f ${exclude_args} \
             '(' \
             -name '*.bash' \
             -o -name '.bashrc' \
@@ -189,13 +191,13 @@ runs:
             -o -path '*/.profile' \
             -o -path '*/profile' \
             -o -name '*.shlib' \
-            ${{ steps.additional.outputs.files }} \
+            ${additional_file_args} \
               ')'\
             -print); do
           filepaths+=("$path");
         done
 
-        for file in $(find "${scandir}" ${{ steps.exclude.outputs.excludes }} -type f ! -name '*.*' -perm /111  -print); do
+        for file in $(find "${scandir}" ${exclude_args} -type f ! -name '*.*' -perm /111  -print); do
           head -n1 "$file" | grep -Eqs "$shebangregex" || continue
           filepaths+=("$file");
         done
@@ -206,18 +208,20 @@ runs:
       shell: bash
       env:
         check_together: ${{ inputs.check_together }}
+        shellcheck_options: ${{ steps.options.outputs.options }}
+        filepaths: ${{ steps.filepaths.outputs.filepaths }}
       run: |
         statuscode=0
 
         if [[ -n "${check_together}" ]]; then
            "${GITHUB_ACTION_PATH}/shellcheck" \
-           ${{ steps.options.outputs.options }} \
-           ${{ steps.filepaths.outputs.filepaths }} || statuscode=$?
+           ${shellcheck_options} \
+           ${filepaths} || statuscode=$?
         else
-          for file in ${{ steps.filepaths.outputs.filepaths }}; do
+          for file in ${filepaths}; do
             echo "::debug::Checking $file"
             "${GITHUB_ACTION_PATH}/shellcheck" \
-            ${{ steps.options.outputs.options }} \
+            ${shellcheck_options} \
             "$file" || statuscode=$?;
           done
         fi
@@ -226,10 +230,15 @@ runs:
 
     - name: Print information
       shell: bash
+      env:
+        filepaths: ${{ steps.filepaths.outputs.filepaths }}
+        exclude_args: ${{ steps.exclude.outputs.excludes }}
+        shellcheck_options: ${{ steps.options.outputs.options }}
+        statuscode: ${{ steps.check.outputs.statuscode }}
       run: |
-        echo "Files: ${{steps.filepaths.outputs.filepaths}}"
-        echo "Excluded: ${{ steps.exclude.outputs.excludes }}"
-        echo "Options: ${{ steps.options.outputs.options }}"
-        echo "Status code: ${{steps.check.outputs.statuscode}}"
+        echo "Files: ${filepaths}"
+        echo "Excluded: ${exclude_args}"
+        echo "Options: ${shellcheck_options}"
+        echo "Status code: ${statuscode}"
 
-        exit ${{steps.check.outputs.statuscode}}
+        exit "${statuscode}"
