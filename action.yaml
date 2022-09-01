@@ -58,7 +58,7 @@ runs:
     - name: Enable problem-matcher
       shell: bash
       run: |
-        problem_matcher_file="$GITHUB_ACTION_PATH/.github/problem-matcher-${{ inputs.format }}.json"
+        problem_matcher_file="${GITHUB_ACTION_PATH}/.github/problem-matcher-${{ inputs.format }}.json"
         if [[ ${{ inputs.disable_matcher }} != "true" && -f "$problem_matcher_file"  ]]; then
           echo "::add-matcher::$problem_matcher_file"
         fi
@@ -66,7 +66,7 @@ runs:
     - name: Download shellcheck
       shell: bash
       run: |
-        if [[ "$RUNNER_OS" == "macOS" ]]; then
+        if [[ "${RUNNER_OS}" == "macOS" ]]; then
           osvariant="darwin"
         else
           osvariant="linux"
@@ -75,17 +75,17 @@ runs:
         scversion="${{ inputs.version }}"
         baseurl="https://github.com/koalaman/shellcheck/releases/download"
 
-        curl -Lso "$GITHUB_ACTION_PATH/sc.tar.xz" \
+        curl -Lso "${GITHUB_ACTION_PATH}/sc.tar.xz" \
           "${baseurl}/${scversion}/shellcheck-${scversion}.${osvariant}.x86_64.tar.xz"
 
-        tar -xf "$GITHUB_ACTION_PATH/sc.tar.xz" -C "$GITHUB_ACTION_PATH"
-        mv "$GITHUB_ACTION_PATH/shellcheck-${scversion}/shellcheck" \
-          "$GITHUB_ACTION_PATH/shellcheck"
+        tar -xf "${GITHUB_ACTION_PATH}/sc.tar.xz" -C "${GITHUB_ACTION_PATH}"
+        mv "${GITHUB_ACTION_PATH}/shellcheck-${scversion}/shellcheck" \
+          "${GITHUB_ACTION_PATH}/shellcheck"
 
     - name: Display shellcheck version
       shell: bash
       run: |
-        "$GITHUB_ACTION_PATH/shellcheck" --version
+        "${GITHUB_ACTION_PATH}/shellcheck" --version
 
     - name: Set options
       shell: bash
@@ -193,13 +193,13 @@ runs:
         statuscode=0
 
         if [[ -n "${{ inputs.check_together }}" ]]; then
-           "$GITHUB_ACTION_PATH/shellcheck" \
+           "${GITHUB_ACTION_PATH}/shellcheck" \
            ${{ steps.options.outputs.options }} \
            ${{ steps.filepaths.outputs.filepaths }} || statuscode=$?
         else
           for file in ${{ steps.filepaths.outputs.filepaths }}; do
             echo "::debug::Checking $file"
-            "$GITHUB_ACTION_PATH/shellcheck" \
+            "${GITHUB_ACTION_PATH}/shellcheck" \
             ${{ steps.options.outputs.options }} \
             "$file" || statuscode=$?;
           done
