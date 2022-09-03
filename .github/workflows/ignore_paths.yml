@@ -1,6 +1,6 @@
-name: 'ignore_paths'
+name: "ignore_paths"
 
-on: 
+on:
   push:
     branches: ["master"]
   pull_request:
@@ -15,24 +15,55 @@ jobs:
           - ubuntu-latest
           - macos-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Run ShellCheck
-      uses: ./
-      id: check
-      with:
-        ignore_paths: ignore
+      - name: Run ShellCheck
+        uses: ./
+        id: check
+        with:
+          ignore_paths: ignore ./testfiles/ignore_some/duplicate_name.bash **/ignore_some/ignore.bash
 
-    - name: Verify check
-      run: | 
-        expect="testfiles/test.bash"
-        notexpect="testfiles/ignore/ignore.bash"
+      - name: Verify check
+        run: |
+          fail=false
 
-        if [[ ! "${{ steps.check.outputs.files }}" =~ $expect ]];then
-          echo "::error:: Expected file $expect not found in ${{ steps.check.outputs.files }}"
-          exit 1
-        elif [[ "${{ steps.check.outputs.files }}" =~ $notexpect ]];then
-          echo "::error:: Expected file $notexpect found in ${{ steps.check.outputs.files }}"
-          exit 1
-        fi
+          # verify a non-ignored path is not excluded
+          expect="testfiles/test.bash"
+          if [[ ! "${{ steps.check.outputs.files }}" =~ $expect ]];then
+            echo "::error:: Expected file $expect not found in ${{ steps.check.outputs.files }}"
+            fail=true
+          fi
+
+          # verify a file with the same name as an ignored file but at a
+          # different path is not excluded
+          expect="testfiles/duplicate_name.bash"
+          if [[ ! "${{ steps.check.outputs.files }}" =~ $expect ]];then
+            echo "::error:: Expected file $expect not found in ${{ steps.check.outputs.files }}"
+            fail=true
+          fi
+
+          # verify ignored full path excluded
+          notexpect="testfiles/ignore_some/duplicate_name.bash"
+          if [[ "${{ steps.check.outputs.files }}" =~ $notexpect ]];then
+            echo "::error:: Unexpected file $notexpect found in ${{ steps.check.outputs.files }}"
+            fail=true
+          fi
+
+          # verify ignored directory excluded
+          notexpect="testfiles/ignore/ignore.bash"
+          if [[ "${{ steps.check.outputs.files }}" =~ $notexpect ]];then
+            echo "::error:: Unexpected file $notexpect found in ${{ steps.check.outputs.files }}"
+            fail=true
+          fi
+
+          # verify ignored glob excluded
+          notexpect="testfiles/ignore_some/ignore.bash"
+          if [[ "${{ steps.check.outputs.files }}" =~ $notexpect ]];then
+            echo "::error:: Unexpected file $notexpect found in ${{ steps.check.outputs.files }}"
+            fail=true
+          fi
+
+          if $fail;then
+            exit 1
+          fi
