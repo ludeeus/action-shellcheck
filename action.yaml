@@ -10,6 +10,7 @@ inputs:
     description: "Paths to ignore when running ShellCheck"
     required: false
     default: ""
+    deprecationMessage: "Use ignore_paths or ignore_names instead."
   ignore_paths:
     description: "Paths to ignore when running ShellCheck"
     required: false
@@ -103,8 +104,8 @@ runs:
       id: exclude
       run: |
         declare -a excludes
-        set -f # temporarily disable globbing so that globs in input aren't
-               # expanded
+        set -f # temporarily disable globbing so that globs in input aren't expanded
+
         excludes+=("! -path \"*./.git/*\"")
         excludes+=("! -path \"*.go\"")
         excludes+=("! -path \"*/mvnw\"")
