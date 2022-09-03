@@ -212,12 +212,6 @@ runs:
         echo "::set-output name=filepaths::${filepaths[@]}"
         echo "::set-output name=statuscode::$statuscode"
 
-    - name: Print information
+    - name: Exit action
       shell: bash
-      run: |
-        echo "Files: ${{ steps.check.outputs.filepaths }}"
-        echo "Excluded: ${{ steps.exclude.outputs.excludes }}"
-        echo "Options: ${{ steps.options.outputs.options }}"
-        echo "Status code: ${{ steps.check.outputs.statuscode }}"
-
-        exit ${{steps.check.outputs.statuscode}}
+      run: exit ${{steps.check.outputs.statuscode}}
