@@ -22,6 +22,7 @@ jobs:
         uses: ./
         id: check
         with:
+          ignore: whatever
           ignore_paths: ignore ./testfiles/ignore_some/duplicate_name.bash **/ignore_some/ignore.bash
 
       - name: Verify check
