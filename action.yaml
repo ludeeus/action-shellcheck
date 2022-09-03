@@ -103,6 +103,8 @@ runs:
       id: exclude
       run: |
         declare -a excludes
+        set -f # temporarily disable globbing so that globs in input aren't
+               # expanded
         excludes+=("! -path \"*./.git/*\"")
         excludes+=("! -path \"*.go\"")
         excludes+=("! -path \"*/mvnw\"")
@@ -112,12 +114,14 @@ runs:
             echo "::debug:: Adding '$path' to excludes"
             excludes+=("! -path \"*./$path/*\"")
             excludes+=("! -path \"*/$path/*\"")
+            excludes+=("! -path \"$path\"")
           done
         else
           for path in ${{ inputs.ignore_paths }}; do
             echo "::debug:: Adding '$path' to excludes"
             excludes+=("! -path \"*./$path/*\"")
             excludes+=("! -path \"*/$path/*\"")
+            excludes+=("! -path \"$path\"")
           done
         fi
 
@@ -126,6 +130,8 @@ runs:
           excludes+=("! -name $name")
         done
         echo "::set-output name=excludes::${excludes[@]}"
+
+        set +f # re-enable globbing
 
     - name: Gather additional files
       shell: bash
