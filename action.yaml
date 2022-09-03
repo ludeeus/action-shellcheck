@@ -10,7 +10,7 @@ inputs:
     description: "Paths to ignore when running ShellCheck"
     required: false
     default: ""
-    deprecationMessage: "with.ignore is deprecated, use with.ignore_paths or with.ignore_names instead."
+    deprecationMessage: "Use ignore_paths or ignore_names instead."
   ignore_paths:
     description: "Paths to ignore when running ShellCheck"
     required: false
