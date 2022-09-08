@@ -10,6 +10,7 @@ inputs:
     description: "Paths to ignore when running ShellCheck"
     required: false
     default: ""
+    deprecationMessage: "Use ignore_paths or ignore_names instead."
   ignore_paths:
     description: "Paths to ignore when running ShellCheck"
     required: false
@@ -45,7 +46,7 @@ inputs:
 outputs:
   files:
     description: A list of files with issues
-    value: ${{ steps.filepaths.outputs.filepaths }}
+    value: ${{ steps.check.outputs.filepaths }}
   options:
     description: The options used
     value: ${{ steps.options.outputs.options }}
@@ -114,29 +115,35 @@ runs:
         ignore_names: ${{ inputs.ignore_names }}
       run: |
         declare -a excludes
+        set -f # temporarily disable globbing so that globs in input aren't expanded
+
         excludes+=("! -path \"*./.git/*\"")
         excludes+=("! -path \"*.go\"")
         excludes+=("! -path \"*/mvnw\"")
         if [[ -n "${ignore}" ]]; then
           echo "::warning::ignore is deprecated. Please use ignore_paths instead"
           for path in ${ignore}; do
-            echo "::debug:: Adding "$path" to excludes"
+            echo "::debug:: Adding '$path' to excludes"
             excludes+=("! -path \"*./$path/*\"")
             excludes+=("! -path \"*/$path/*\"")
+            excludes+=("! -path \"$path\"")
           done
         else
           for path in ${ignore_paths}; do
-            echo "::debug:: Adding "$path" to excludes"
+            echo "::debug:: Adding '$path' to excludes"
             excludes+=("! -path \"*./$path/*\"")
             excludes+=("! -path \"*/$path/*\"")
+            excludes+=("! -path \"$path\"")
           done
         fi
 
         for name in ${ignore_names}; do
-          echo "::debug:: Adding "$name" to excludes"
+          echo "::debug:: Adding '$name' to excludes"
           excludes+=("! -name $name")
         done
         echo "::set-output name=excludes::${excludes[@]}"
+
+        set +f # re-enable globbing
 
     - name: Gather additional files
       shell: bash
@@ -146,24 +153,30 @@ runs:
       run: |
         declare -a files
         for file in ${additional_files}; do
-          echo "::debug:: Adding "$file" to excludes"
+          echo "::debug:: Adding '$file' to excludes"
           files+=("-o -name \"*$file\"")
         done
         echo "::set-output name=files::${files[@]}"
 
-    - name: Gather base file paths
+    - name: Run the check
       shell: bash
-      id: filepaths
+      id: check
       env:
         scandir: ${{ inputs.scandir }}
+        check_together: ${{ inputs.check_together }}
         exclude_args: ${{ steps.exclude.outputs.excludes }}
         additional_file_args: ${{ steps.additional.outputs.files }}
+        shellcheck_options: ${{ steps.options.outputs.options }}
       run: |
+        statuscode=0
         declare -a filepaths
         shebangregex="^#! */[^ ]*/(env *)?[abk]*sh"
 
-        for path in $(find "${scandir}" \
-            -type f -type f ${exclude_args} \
+        while IFS= read -r -d '' file; do
+          filepaths+=("$file")
+        done < <(find "${scandir}" \
+            ${exclude_args} \
+            -type f \
             '(' \
             -name '*.bash' \
             -o -name '.bashrc' \
@@ -192,53 +205,35 @@ runs:
             -o -path '*/profile' \
             -o -name '*.shlib' \
             ${additional_file_args} \
-              ')'\
-            -print); do
-          filepaths+=("$path");
-        done
+            ')' \
+            -print0)
 
-        for file in $(find "${scandir}" ${exclude_args} -type f ! -name '*.*' -perm /111  -print); do
+        while IFS= read -r -d '' file; do
           head -n1 "$file" | grep -Eqs "$shebangregex" || continue
-          filepaths+=("$file");
-        done
-        echo "::set-output name=filepaths::${filepaths[@]}"
-
-    - name: Run the file check
-      id: check
-      shell: bash
-      env:
-        check_together: ${{ inputs.check_together }}
-        shellcheck_options: ${{ steps.options.outputs.options }}
-        filepaths: ${{ steps.filepaths.outputs.filepaths }}
-      run: |
-        statuscode=0
+          filepaths+=("$file")
+        done < <(find "${scandir}" \
+            ${exclude_args} \
+            -type f ! -name '*.*' -perm /111 \
+            -print0)
 
         if [[ -n "${check_together}" ]]; then
-           "${{ github.action_path }}/shellcheck" \
-           ${shellcheck_options} \
-           ${filepaths} || statuscode=$?
-        else
-          for file in ${filepaths}; do
-            echo "::debug::Checking $file"
-            "${{ github.action_path }}/shellcheck" \
+          "${{ github.action_path }}/shellcheck" \
             ${shellcheck_options} \
-            "$file" || statuscode=$?;
+            "${filepaths[@]}" || statuscode=$?
+        else
+          for file in "${filepaths[@]}"; do
+            echo "::debug::Checking '$file'"
+            "${{ github.action_path }}/shellcheck" \
+              ${shellcheck_options} \
+              "$file" || statuscode=$?
           done
         fi
 
+        echo "::set-output name=filepaths::${filepaths[@]}"
         echo "::set-output name=statuscode::$statuscode"
 
-    - name: Print information
+    - name: Exit action
       shell: bash
       env:
-        filepaths: ${{ steps.filepaths.outputs.filepaths }}
-        exclude_args: ${{ steps.exclude.outputs.excludes }}
-        shellcheck_options: ${{ steps.options.outputs.options }}
         statuscode: ${{ steps.check.outputs.statuscode }}
-      run: |
-        echo "Files: ${filepaths}"
-        echo "Excluded: ${exclude_args}"
-        echo "Options: ${shellcheck_options}"
-        echo "Status code: ${statuscode}"
-
-        exit "${statuscode}"
+      run: exit "${statuscode}"

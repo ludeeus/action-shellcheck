@@ -1,6 +1,6 @@
 name: 'scandir'
 
-on: 
+on:
   push:
     branches: ["master"]
   pull_request:
@@ -25,8 +25,8 @@ jobs:
         scandir: testfiles/scandir
 
     - name: Verify check
-      run: | 
-        expect="testfiles/scandir/test.bash"
+      run: |
+        expect="testfiles/scandir/run[[:space:]]me.bash"
         notexpect="testfiles/test.bash"
 
         if [[ ! "${{ steps.one.outputs.files }}" =~ $expect ]];then
@@ -35,7 +35,7 @@ jobs:
         elif [[ "${{ steps.one.outputs.files }}" =~ $notexpect ]];then
           echo "::error:: Expected file $notexpect found in ${{ steps.one.outputs.files }}"
           exit 1
-        fi 
+        fi
 
     - name: Run ShellCheck
       uses: ./
@@ -45,7 +45,7 @@ jobs:
         ignore_paths: ignore
 
     - name: Verify check
-      run: | 
+      run: |
         expect="testfiles/scandir/test.bash"
         notexpect="testfiles/test.bash"
 
@@ -55,4 +55,4 @@ jobs:
         elif [[ "${{ steps.two.outputs.files }}" =~ $notexpect ]];then
           echo "::error:: Expected file $notexpect found in ${{ steps.two.outputs.files }}"
           exit 1
-        fi 
+        fi
