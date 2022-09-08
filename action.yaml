@@ -234,6 +234,4 @@ runs:
 
     - name: Exit action
       shell: bash
-      env:
-        statuscode: ${{ steps.check.outputs.statuscode }}
-      run: exit "${statuscode}"
+      run: exit ${{steps.check.outputs.statuscode}}
