@@ -117,23 +117,23 @@ runs:
         declare -a excludes
         set -f # temporarily disable globbing so that globs in input aren't expanded
 
-        excludes+=("! -path \"*./.git/*\"")
-        excludes+=("! -path \"*.go\"")
-        excludes+=("! -path \"*/mvnw\"")
+        excludes+=("! -path *./.git/*")
+        excludes+=("! -path *.go")
+        excludes+=("! -path */mvnw")
         if [[ -n "${ignore}" ]]; then
           echo "::warning::ignore is deprecated. Please use ignore_paths instead"
           for path in ${ignore}; do
             echo "::debug:: Adding '$path' to excludes"
-            excludes+=("! -path \"*./$path/*\"")
-            excludes+=("! -path \"*/$path/*\"")
-            excludes+=("! -path \"$path\"")
+            excludes+=("! -path *./$path/*")
+            excludes+=("! -path */$path/*")
+            excludes+=("! -path $path")
           done
         else
           for path in ${ignore_paths}; do
             echo "::debug:: Adding '$path' to excludes"
-            excludes+=("! -path \"*./$path/*\"")
-            excludes+=("! -path \"*/$path/*\"")
-            excludes+=("! -path \"$path\"")
+            excludes+=("! -path *./$path/*")
+            excludes+=("! -path */$path/*")
+            excludes+=("! -path $path")
           done
         fi
 
@@ -153,8 +153,8 @@ runs:
       run: |
         declare -a files
         for file in ${additional_files}; do
-          echo "::debug:: Adding '$file' to excludes"
-          files+=("-o -name \"*$file\"")
+          echo "::debug:: Adding '$file' to additional files"
+          files+=("-o -name *$file")
         done
         echo "::set-output name=files::${files[@]}"
 
@@ -171,6 +171,8 @@ runs:
         statuscode=0
         declare -a filepaths
         shebangregex="^#! */[^ ]*/(env *)?[abk]*sh"
+
+        set -f # temporarily disable globbing so that globs in inputs aren't expanded
 
         while IFS= read -r -d '' file; do
           filepaths+=("$file")
@@ -231,6 +233,8 @@ runs:
 
         echo "::set-output name=filepaths::${filepaths[@]}"
         echo "::set-output name=statuscode::$statuscode"
+
+        set +f # re-enable globbing
 
     - name: Exit action
       shell: bash
