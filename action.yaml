@@ -116,16 +116,13 @@ runs:
         excludes+=("! -path *.go")
         excludes+=("! -path */mvnw")
         if [[ -n "${INPUT_IGNORE}" ]]; then
-          echo "::warning::ignore is deprecated. Please use ignore_paths instead"
           for path in ${INPUT_IGNORE}; do
-            echo "::debug:: Adding '$path' to excludes"
             excludes+=("! -path *./$path/*")
             excludes+=("! -path */$path/*")
             excludes+=("! -path $path")
           done
         else
           for path in ${INPUT_IGNORE_PATHS}; do
-            echo "::debug:: Adding '$path' to excludes"
             excludes+=("! -path *./$path/*")
             excludes+=("! -path */$path/*")
             excludes+=("! -path $path")
@@ -133,7 +130,6 @@ runs:
         fi
 
         for name in ${INPUT_IGNORE_NAMES}; do
-          echo "::debug:: Adding '$name' to excludes"
           excludes+=("! -name $name")
         done
         echo "excludes=${excludes[@]}" >> $GITHUB_OUTPUT
@@ -148,7 +144,6 @@ runs:
       run: |
         declare -a files
         for file in ${INPUT_ADDITIONAL_FILES}; do
-          echo "::debug:: Adding '$file' to additional files"
           files+=("-o -name *$file")
         done
         echo "files=${files[@]}" >> $GITHUB_OUTPUT
@@ -219,7 +214,6 @@ runs:
             "${filepaths[@]}" || statuscode=$?
         else
           for file in "${filepaths[@]}"; do
-            echo "::debug::Checking '$file'"
             "${{ github.action_path }}/shellcheck" \
               ${INPUT_SHELLCHECK_OPTIONS} \
               "$file" || statuscode=$?
