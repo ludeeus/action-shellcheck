@@ -104,7 +104,7 @@ runs:
           options+=("-S ${severity}")
         fi
         options+=("--format=${format}")
-        echo "::set-output name=options::${options[@]}"
+        echo "options=${options[@]}" >> $GITHUB_OUTPUT
 
     - name: Gather excluded paths
       shell: bash
@@ -141,7 +141,7 @@ runs:
           echo "::debug:: Adding '$name' to excludes"
           excludes+=("! -name $name")
         done
-        echo "::set-output name=excludes::${excludes[@]}"
+        echo "excludes=${excludes[@]}" >> $GITHUB_OUTPUT
 
         set +f # re-enable globbing
 
@@ -156,7 +156,7 @@ runs:
           echo "::debug:: Adding '$file' to additional files"
           files+=("-o -name *$file")
         done
-        echo "::set-output name=files::${files[@]}"
+        echo "files=${files[@]}" >> $GITHUB_OUTPUT
 
     - name: Run the check
       shell: bash
@@ -231,8 +231,8 @@ runs:
           done
         fi
 
-        echo "::set-output name=filepaths::${filepaths[@]}"
-        echo "::set-output name=statuscode::$statuscode"
+        echo "filepaths=${filepaths[@]}" >> $GITHUB_OUTPUT
+        echo "statuscode=$statuscode" >> $GITHUB_OUTPUT
 
         set +f # re-enable globbing
 
