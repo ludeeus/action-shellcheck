@@ -2,8 +2,11 @@ name: 'additional_files'
 
 on: 
   push:
-    branches: ["master"]
+    branches:
+      - "master"
   pull_request:
+    branches:
+      - "master"
 
 permissions: {}
 
