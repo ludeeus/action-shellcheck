@@ -11,6 +11,7 @@ on:
       - master
 
 name: "Trigger: Push action"
+permissions: {}
 
 jobs:
   shellcheck:
