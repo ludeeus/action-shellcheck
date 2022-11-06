@@ -59,18 +59,18 @@ runs:
     - name: Enable problem-matcher
       shell: bash
       env:
-        format: ${{ inputs.format }}
-        disable_matcher: ${{ inputs.disable_matcher }}
+        INPUT_FORMAT: ${{ inputs.format }}
+        INPUT_DISABLE_MATCHER: ${{ inputs.disable_matcher }}
       run: |
-        problem_matcher_file="${{ github.action_path }}/.github/problem-matcher-${format}.json"
-        if [[ "${disable_matcher}" != "true" && -f "$problem_matcher_file"  ]]; then
+        problem_matcher_file="${{ github.action_path }}/.github/problem-matcher-${INPUT_FORMAT}.json"
+        if [[ "${INPUT_DISABLE_MATCHER}" != "true" && -f "$problem_matcher_file"  ]]; then
           echo "::add-matcher::$problem_matcher_file"
         fi
 
     - name: Download shellcheck
       shell: bash
       env:
-        scversion: ${{ inputs.version }}
+        INPUT_VERSION: ${{ inputs.version }}
       run: |
         if [[ "${{ runner.os }}" == "macOS" ]]; then
           osvariant="darwin"
@@ -81,23 +81,18 @@ runs:
         baseurl="https://github.com/koalaman/shellcheck/releases/download"
 
         curl -Lso "${{ github.action_path }}/sc.tar.xz" \
-          "${baseurl}/${scversion}/shellcheck-${scversion}.${osvariant}.x86_64.tar.xz"
+          "${baseurl}/${INPUT_VERSION}/shellcheck-${INPUT_VERSION}.${osvariant}.x86_64.tar.xz"
 
         tar -xf "${{ github.action_path }}/sc.tar.xz" -C "${{ github.action_path }}"
-        mv "${{ github.action_path }}/shellcheck-${scversion}/shellcheck" \
+        mv "${{ github.action_path }}/shellcheck-${INPUT_VERSION}/shellcheck" \
           "${{ github.action_path }}/shellcheck"
-
-    - name: Display shellcheck version
-      shell: bash
-      run: |
-        "${{ github.action_path }}/shellcheck" --version
 
     - name: Set options
       shell: bash
       id: options
       env:
-        severity: ${{ inputs.severity }}
-        format: ${{ inputs.format }}
+        INPUT_SEVERITY: ${{ inputs.severity }}
+        INPUT_FORMAT: ${{ inputs.format }}
       run: |
         declare -a options
         if [[ -n "${severity}" ]]; then
@@ -110,9 +105,9 @@ runs:
       shell: bash
       id: exclude
       env:
-        ignore: ${{ inputs.ignore }}
-        ignore_paths: ${{ inputs.ignore_paths }}
-        ignore_names: ${{ inputs.ignore_names }}
+        INPUT_IGNORE: ${{ inputs.ignore }}
+        INPUT_IGNORE_PATHS: ${{ inputs.ignore_paths }}
+        INPUT_IGNORE_NAMES: ${{ inputs.ignore_names }}
       run: |
         declare -a excludes
         set -f # temporarily disable globbing so that globs in input aren't expanded
@@ -120,16 +115,16 @@ runs:
         excludes+=("! -path *./.git/*")
         excludes+=("! -path *.go")
         excludes+=("! -path */mvnw")
-        if [[ -n "${ignore}" ]]; then
+        if [[ -n "${INPUT_IGNORE}" ]]; then
           echo "::warning::ignore is deprecated. Please use ignore_paths instead"
-          for path in ${ignore}; do
+          for path in ${INPUT_IGNORE}; do
             echo "::debug:: Adding '$path' to excludes"
             excludes+=("! -path *./$path/*")
             excludes+=("! -path */$path/*")
             excludes+=("! -path $path")
           done
         else
-          for path in ${ignore_paths}; do
+          for path in ${INPUT_IGNORE_PATHS}; do
             echo "::debug:: Adding '$path' to excludes"
             excludes+=("! -path *./$path/*")
             excludes+=("! -path */$path/*")
@@ -137,7 +132,7 @@ runs:
           done
         fi
 
-        for name in ${ignore_names}; do
+        for name in ${INPUT_IGNORE_NAMES}; do
           echo "::debug:: Adding '$name' to excludes"
           excludes+=("! -name $name")
         done
@@ -149,10 +144,10 @@ runs:
       shell: bash
       id: additional
       env:
-        additional_files: ${{ inputs.additional_files }}
+        INPUT_ADDITIONAL_FILES: ${{ inputs.additional_files }}
       run: |
         declare -a files
-        for file in ${additional_files}; do
+        for file in ${INPUT_ADDITIONAL_FILES}; do
           echo "::debug:: Adding '$file' to additional files"
           files+=("-o -name *$file")
         done
@@ -162,11 +157,11 @@ runs:
       shell: bash
       id: check
       env:
-        scandir: ${{ inputs.scandir }}
-        check_together: ${{ inputs.check_together }}
-        exclude_args: ${{ steps.exclude.outputs.excludes }}
-        additional_file_args: ${{ steps.additional.outputs.files }}
-        shellcheck_options: ${{ steps.options.outputs.options }}
+        INPUT_SCANDIR: ${{ inputs.scandir }}
+        INPUT_CHECK_TOGETHER: ${{ inputs.check_together }}
+        INPUT_EXCLUDE_ARGS: ${{ steps.exclude.outputs.excludes }}
+        INPUT_ADDITIONAL_FILE_ARGS: ${{ steps.additional.outputs.files }}
+        INPUT_SHELLCHECK_OPTIONS: ${{ steps.options.outputs.options }}
       run: |
         statuscode=0
         declare -a filepaths
@@ -176,8 +171,8 @@ runs:
 
         while IFS= read -r -d '' file; do
           filepaths+=("$file")
-        done < <(find "${scandir}" \
-            ${exclude_args} \
+        done < <(find "${INPUT_SCANDIR}" \
+            ${INPUT_EXCLUDE_ARGS} \
             -type f \
             '(' \
             -name '*.bash' \
@@ -206,27 +201,27 @@ runs:
             -o -path '*/.profile' \
             -o -path '*/profile' \
             -o -name '*.shlib' \
-            ${additional_file_args} \
+            ${INPUT_ADDITIONAL_FILE_ARGS} \
             ')' \
             -print0)
 
         while IFS= read -r -d '' file; do
           head -n1 "$file" | grep -Eqs "$shebangregex" || continue
           filepaths+=("$file")
-        done < <(find "${scandir}" \
-            ${exclude_args} \
+        done < <(find "${INPUT_SCANDIR}" \
+            ${INPUT_EXCLUDE_ARGS} \
             -type f ! -name '*.*' -perm /111 \
             -print0)
 
-        if [[ -n "${check_together}" ]]; then
+        if [[ -n "${INPUT_CHECK_TOGETHER}" ]]; then
           "${{ github.action_path }}/shellcheck" \
-            ${shellcheck_options} \
+            ${INPUT_SHELLCHECK_OPTIONS} \
             "${filepaths[@]}" || statuscode=$?
         else
           for file in "${filepaths[@]}"; do
             echo "::debug::Checking '$file'"
             "${{ github.action_path }}/shellcheck" \
-              ${shellcheck_options} \
+              ${INPUT_SHELLCHECK_OPTIONS} \
               "$file" || statuscode=$?
           done
         fi
