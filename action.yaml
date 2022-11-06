@@ -87,6 +87,11 @@ runs:
         mv "${{ github.action_path }}/shellcheck-${INPUT_VERSION}/shellcheck" \
           "${{ github.action_path }}/shellcheck"
 
+    - name: Display shellcheck version
+      shell: bash
+      run: |
+        "${{ github.action_path }}/shellcheck" --version
+
     - name: Set options
       shell: bash
       id: options
