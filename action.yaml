@@ -89,7 +89,8 @@ runs:
 
     - name: Display shellcheck version
       shell: bash
-      run: "${{ github.action_path }}/shellcheck" --version
+      run: |
+        "${{ github.action_path }}/shellcheck" --version
 
     - name: Set options
       shell: bash
