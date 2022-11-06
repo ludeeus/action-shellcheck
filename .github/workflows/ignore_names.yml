@@ -5,6 +5,8 @@ on:
     branches: ["master"]
   pull_request:
 
+permissions: {}
+
 jobs:
   ignore_names:
     name: ignore_names
