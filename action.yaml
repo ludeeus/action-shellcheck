@@ -95,10 +95,10 @@ runs:
         INPUT_FORMAT: ${{ inputs.format }}
       run: |
         declare -a options
-        if [[ -n "${severity}" ]]; then
-          options+=("-S ${severity}")
+        if [[ -n "${INPUT_SEVERITY}" ]]; then
+          options+=("-S ${INPUT_SEVERITY}")
         fi
-        options+=("--format=${format}")
+        options+=("--format=${INPUT_FORMAT}")
         echo "options=${options[@]}" >> $GITHUB_OUTPUT
 
     - name: Gather excluded paths
