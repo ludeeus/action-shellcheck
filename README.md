@@ -44,7 +44,7 @@ example:
 
 ## Ignore paths and names
 
-You can use the `ignore_paths` and `ignore_names` input to disable specific directories and files.
+You can use the `ignore_paths` and `ignore_names` input to disable specific directories and files. These are passed as environment variables, and should evaluate to a single space separated string. It may be convenient to use [`>-`](https://yaml.org/spec/1.2.2/#65-line-folding) for readability if you have multiple selectors.
 
 ```text
 sample structure:
@@ -61,7 +61,9 @@ example:
     - name: Run ShellCheck
       uses: ludeeus/action-shellcheck@master
       with:
-        ignore_paths: ignoreme ignoremetoo
+        ignore_paths: >-
+          ignoreme
+          ignoremetoo
         ignore_names: ignorable.sh
 ```
 
@@ -174,5 +176,5 @@ If running the latest stable version of Shellcheck is not to your liking, you ca
    - name: Run ShellCheck
      uses: ludeeus/action-shellcheck@master
      with:
-       version: v0.7.0
+       version: v0.9.0
 ```
