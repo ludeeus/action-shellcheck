@@ -44,7 +44,9 @@ example:
 
 ## Ignore paths and names
 
-You can use the `ignore_paths` and `ignore_names` input to disable specific directories and files. These are passed as environment variables, and should evaluate to a single space separated string. It may be convenient to use [`>-`](https://yaml.org/spec/1.2.2/#65-line-folding) for readability if you have multiple selectors.
+You can use the `ignore_paths` and `ignore_names` input to disable specific directories and files.
+These are passed as environment variables, and should evaluate to a single space-separated string.
+It may be convenient to use [`>-`](https://yaml.org/spec/1.2.2/#65-line-folding) for readability if you have multiple selectors.
 
 ```text
 sample structure:
