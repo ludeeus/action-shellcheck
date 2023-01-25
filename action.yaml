@@ -64,7 +64,8 @@ runs:
       run: |
         problem_matcher_file="${GITHUB_ACTION_PATH}/.github/problem-matcher-${INPUT_FORMAT}.json"
         if [[ "${INPUT_DISABLE_MATCHER}" != "true" && -f "$problem_matcher_file"  ]]; then
-          echo "::add-matcher::$problem_matcher_file"
+          cp ${problem_matcher_file} "$HOME/"
+          echo "::add-matcher::$HOME/problem-matcher-${INPUT_FORMAT}.json"
         fi
 
     - name: Download shellcheck
