@@ -230,6 +230,13 @@ runs:
 
         set +f # re-enable globbing
 
+    - name: Remove problem-matcher
+      shell: bash
+      run: |
+        echo "::remove-matcher owner=shellcheck-gcc::"
+        echo "::remove-matcher owner=shellcheck-gcc-notice::"
+        echo "::remove-matcher owner=shellcheck-tty::"
+
     - name: Exit action
       shell: bash
       run: exit ${{steps.check.outputs.statuscode}}
