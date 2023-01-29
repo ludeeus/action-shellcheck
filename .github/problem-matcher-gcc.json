@@ -9,7 +9,9 @@
           "line": 2,
           "column": 3,
           "severity": 4,
-          "message": 5
+          "message": 5,
+          "code": 6,
+          "loop": true
         }
       ]
     },
@@ -23,7 +25,8 @@
           "line": 2,
           "column": 3,
           "message": 5,
-          "code": 6
+          "code": 6,
+          "loop": true
         }
       ]
     }
