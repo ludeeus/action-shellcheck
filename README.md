@@ -1,6 +1,6 @@
 # ShellCheck
 
-_GitHub action for ShellCheck._
+_GitHub action for [ShellCheck](https://www.shellcheck.net/)._
 
 ## Example
 
@@ -178,5 +178,5 @@ If running the latest stable version of Shellcheck is not to your liking, you ca
    - name: Run ShellCheck
      uses: ludeeus/action-shellcheck@master
      with:
-       version: v0.7.0
+       version: v0.9.0
 ```
