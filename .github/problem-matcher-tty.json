@@ -8,13 +8,11 @@
               "file": 1,
               "line": 2
           },
-          {
-            "regexp": ".*"
-          },
-          {
-              "regexp": "(SC\\d+):\\s(.+)$",
+           {
+              "regexp": "^.*(SC\\d+)\\s\\((\\w+)\\):\\s(.+)$",
               "code": 1,
-              "message": 2,
+              "severity": 2,
+              "message": 3,
               "loop": true
           }
         ]
