@@ -38,7 +38,7 @@ inputs:
   format:
     description: "Output format (checkstyle, diff, gcc, json, json1, quiet, tty)"
     required: false
-    default: "gcc"
+    default: "tty"
   version:
     description: "Specify a concrete version of ShellCheck to use"
     required: false
