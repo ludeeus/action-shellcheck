@@ -35,6 +35,7 @@ inputs:
     description: "Set to true to skip using problem-matcher"
     required: false
     default: "false"
+    deprecationMessage: "There are no problem-matchers, this setting does not do anything."
   format:
     description: "Output format (checkstyle, diff, gcc, json, json1, quiet, tty)"
     required: false
@@ -56,17 +57,6 @@ branding:
 runs:
   using: "composite"
   steps:
-    - name: Enable problem-matcher
-      shell: bash
-      env:
-        INPUT_FORMAT: ${{ inputs.format }}
-        INPUT_DISABLE_MATCHER: ${{ inputs.disable_matcher }}
-      run: |
-        problem_matcher_file="${{ github.action_path }}/.github/problem-matcher-${INPUT_FORMAT}.json"
-        if [[ "${INPUT_DISABLE_MATCHER}" != "true" && -f "$problem_matcher_file"  ]]; then
-          echo "::add-matcher::$problem_matcher_file"
-        fi
-
     - name: Download shellcheck
       shell: bash
       env:
@@ -229,13 +219,6 @@ runs:
         echo "statuscode=$statuscode" >> $GITHUB_OUTPUT
 
         set +f # re-enable globbing
-
-    - name: Remove problem-matcher
-      shell: bash
-      run: |
-        echo "::remove-matcher owner=shellcheck-gcc::"
-        echo "::remove-matcher owner=shellcheck-gcc-notice::"
-        echo "::remove-matcher owner=shellcheck-tty::"
 
     - name: Exit action
       shell: bash

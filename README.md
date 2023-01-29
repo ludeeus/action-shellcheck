@@ -140,26 +140,12 @@ If you need to scan for unusual files, you can use the `additional_files` key.
        additional_files: 'run finish'
 ```
 
-## Disable problem matcher
-
-If you do not want to have the problem-matcher annotate files, you can disable it
-by setting `disable_matcher` to `true`.
-
-```yaml
-   ...
-   - name: Run ShellCheck
-     uses: ludeeus/action-shellcheck@master
-     with:
-       disable_matcher: true
-```
-
 ## Change output format
 
 Shellcheck can print output in these formats: `checkstyle`, `diff`, `gcc`, `json`, `json1`, `quiet`, `tty`. See some examples [here](https://github.com/koalaman/shellcheck/wiki/Integration#pick-the-output-format-that-makes-your-life-easier).
-Only `tty` and `gcc` produce file annotations via problem matcher, default is `gcc`.
 
-- `tty` has multi-line log messages, but all annotations are reported as errors
-- `gcc` has single-line log messages, so it's easier to parse with a problem matcher (including correct severity annotation)
+- `tty` has multi-line log messages
+- `gcc` has single-line log messages
 
 ```yaml
    ...
