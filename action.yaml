@@ -231,6 +231,7 @@ runs:
         set +f # re-enable globbing
 
     - name: Remove problem-matcher
+      shell: bash
       run: |
         echo "::remove-matcher owner=shellcheck-gcc::"
         echo "::remove-matcher owner=shellcheck-gcc-notice::"
