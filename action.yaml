@@ -70,17 +70,17 @@ runs:
 
         baseurl="https://github.com/koalaman/shellcheck/releases/download"
 
-        curl -Lso "${{ github.action_path }}/sc.tar.xz" \
+        curl -Lso "${GITHUB_ACTION_PATH}/sc.tar.xz" \
           "${baseurl}/${INPUT_VERSION}/shellcheck-${INPUT_VERSION}.${osvariant}.x86_64.tar.xz"
 
-        tar -xf "${{ github.action_path }}/sc.tar.xz" -C "${{ github.action_path }}"
-        mv "${{ github.action_path }}/shellcheck-${INPUT_VERSION}/shellcheck" \
-          "${{ github.action_path }}/shellcheck"
+        tar -xf "${GITHUB_ACTION_PATH}/sc.tar.xz" -C "${GITHUB_ACTION_PATH}"
+        mv "${GITHUB_ACTION_PATH}/shellcheck-${INPUT_VERSION}/shellcheck" \
+          "${GITHUB_ACTION_PATH}/shellcheck"
 
     - name: Display shellcheck version
       shell: bash
       run: |
-        "${{ github.action_path }}/shellcheck" --version
+        "${GITHUB_ACTION_PATH}/shellcheck" --version
 
     - name: Set options
       shell: bash
@@ -204,12 +204,12 @@ runs:
             -print0)
 
         if [[ -n "${INPUT_CHECK_TOGETHER}" ]]; then
-          "${{ github.action_path }}/shellcheck" \
+          "${GITHUB_ACTION_PATH}/shellcheck" \
             ${INPUT_SHELLCHECK_OPTIONS} \
             "${filepaths[@]}" || statuscode=$?
         else
           for file in "${filepaths[@]}"; do
-            "${{ github.action_path }}/shellcheck" \
+            "${GITHUB_ACTION_PATH}/shellcheck" \
               ${INPUT_SHELLCHECK_OPTIONS} \
               "$file" || statuscode=$?
           done
