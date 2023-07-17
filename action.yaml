@@ -69,7 +69,7 @@ runs:
         else
           osvariant="linux"
 
-          if [[ "${{ RUNNER_ARCH }}" == "ARM64" ]]; then
+          if [[ "${RUNNER_ARCH }" == "ARM64" ]]; then
             osarch="aarch64"
           fi
 
