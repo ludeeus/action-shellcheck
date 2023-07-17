@@ -62,16 +62,23 @@ runs:
       env:
         INPUT_VERSION: ${{ inputs.version }}
       run: |
+        osarch="x86_64"
+
         if [[ "${{ runner.os }}" == "macOS" ]]; then
           osvariant="darwin"
         else
           osvariant="linux"
+
+          if [[ "${{ RUNNER_ARCH }}" == "ARM64" ]]; then
+            osarch="aarch64"
+          fi
+
         fi
 
         baseurl="https://github.com/koalaman/shellcheck/releases/download"
 
         curl -Lso "${{ github.action_path }}/sc.tar.xz" \
-          "${baseurl}/${INPUT_VERSION}/shellcheck-${INPUT_VERSION}.${osvariant}.x86_64.tar.xz"
+          "${baseurl}/${INPUT_VERSION}/shellcheck-${INPUT_VERSION}.${osvariant}.${osarch}.tar.xz"
 
         tar -xf "${{ github.action_path }}/sc.tar.xz" -C "${{ github.action_path }}"
         mv "${{ github.action_path }}/shellcheck-${INPUT_VERSION}/shellcheck" \
