@@ -155,7 +155,7 @@ runs:
       run: |
         statuscode=0
         declare -a filepaths
-        shebangregex="^#! */[^ ]*/(env *)?[abk]*sh"
+        shebangregex="^#! */[^ ]*/(with-cont)?(env *)?[abk]*sh"
 
         set -f # temporarily disable globbing so that globs in inputs aren't expanded
 
