@@ -1,49 +1,49 @@
-name: "ShellCheck"
-author: "Ludeeus <hi@ludeeus.dev>"
-description: "GitHub action for ShellCheck."
+name: 'ShellCheck'
+author: 'Ludeeus <hi@ludeeus.dev>'
+description: 'GitHub action for ShellCheck.'
 inputs:
   additional_files:
-    description: "A space separated list of additional filename to check"
+    description: 'A space separated list of additional filename to check'
     required: false
-    default: ""
+    default: ''
   ignore:
-    description: "Paths to ignore when running ShellCheck"
+    description: 'Paths to ignore when running ShellCheck'
     required: false
-    default: ""
-    deprecationMessage: "Use ignore_paths or ignore_names instead."
+    default: ''
+    deprecationMessage: 'Use ignore_paths or ignore_names instead.'
   ignore_paths:
-    description: "Paths to ignore when running ShellCheck"
+    description: 'Paths to ignore when running ShellCheck'
     required: false
-    default: ""
+    default: ''
   ignore_names:
-    description: "Names to ignore when running ShellCheck"
+    description: 'Names to ignore when running ShellCheck'
     required: false
-    default: ""
+    default: ''
   severity:
-    description: "Minimum severity of errors to consider. Options: [error, warning, info, style]"
+    description: 'Minimum severity of errors to consider. Options: [error, warning, info, style]'
     required: false
-    default: ""
+    default: ''
   check_together:
-    description: "Run shellcheck on _all_ files at once, instead of one at a time"
+    description: 'Run shellcheck on _all_ files at once, instead of one at a time'
     required: false
-    default: ""
+    default: ''
   scandir:
-    description: "Directory to be searched for files. Defaults to ."
+    description: 'Directory to be searched for files. Defaults to .'
     required: false
-    default: "."
+    default: '.'
   disable_matcher:
-    description: "Set to true to skip using problem-matcher"
+    description: 'Set to true to skip using problem-matcher'
     required: false
-    default: "false"
-    deprecationMessage: "There are no problem-matchers, this setting does not do anything."
+    default: 'false'
+    deprecationMessage: 'There are no problem-matchers, this setting does not do anything.'
   format:
-    description: "Output format (checkstyle, diff, gcc, json, json1, quiet, tty)"
+    description: 'Output format (checkstyle, diff, gcc, json, json1, quiet, tty)'
     required: false
-    default: "gcc"
+    default: 'gcc'
   version:
-    description: "Specify a concrete version of ShellCheck to use"
+    description: 'Specify a concrete version of ShellCheck to use'
     required: false
-    default: "stable"
+
 outputs:
   files:
     description: A list of files with issues
@@ -52,35 +52,67 @@ outputs:
     description: The options used
     value: ${{ steps.options.outputs.options }}
 branding:
-  icon: "terminal"
-  color: "gray-dark"
+  icon: 'terminal'
+  color: 'gray-dark'
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Download shellcheck
       shell: bash
+      id: binary
       env:
         INPUT_VERSION: ${{ inputs.version }}
       run: |
-        if [[ "${{ runner.os }}" == "macOS" ]]; then
-          osvariant="darwin"
-        else
-          osvariant="linux"
+        # check if shellcheck already installed
+        existing="$(command -v shellcheck)"
+        existing_version=[[ -n "${existing}" ]] && "${existing}" --version | grep -oP '(?<=version: )[^ ]+'
+
+        # if doesn't exist, download it
+        if [[ -z "${existing}" ]]; then
+
+          desired_version=${INPUT_VERSION:-stable}
+          
+          if [[ "${{ runner.os }}" == "macOS" ]]; then
+            osvariant="darwin"
+          else
+            osvariant="linux"
+          fi
+
+          baseurl="https://github.com/koalaman/shellcheck/releases/download"
+
+          curl -Lso "${{ github.action_path }}/sc.tar.xz" \
+            "${baseurl}/${desired_version}/shellcheck-${desired_version}.${osvariant}.x86_64.tar.xz"
+
+          tar -xf "${{ github.action_path }}/sc.tar.xz" -C "${{ github.action_path }}"
+          mv "${{ github.action_path }}/shellcheck-${desired_version}/shellcheck" \
+            "${{ github.action_path }}/shellcheck"
+          
+          echo "path=${{ github.action_path }}/shellcheck" >> $GITHUB_OUTPUT
+          exit 0
         fi
 
-        baseurl="https://github.com/koalaman/shellcheck/releases/download"
+        # if existing but no version specified, use whatever exists
+        if  [[ -z "${INPUT_VERSION}" ]]; then
+          echo "Using existing shellcheck"
+          echo "path=${existing}" >> $GITHUB_OUTPUT
+          exit 0
+        fi
 
-        curl -Lso "${{ github.action_path }}/sc.tar.xz" \
-          "${baseurl}/${INPUT_VERSION}/shellcheck-${INPUT_VERSION}.${osvariant}.x86_64.tar.xz"
+        # if existing and version specified, check if it matches
+        if [[ "${existing_version}" == "${INPUT_VERSION}" ]]; then
+          echo "Using existing shellcheck ${INPUT_VERSION}"
+          echo "path=${existing}" >> $GITHUB_OUTPUT
+          exit 0
+        fi
 
-        tar -xf "${{ github.action_path }}/sc.tar.xz" -C "${{ github.action_path }}"
-        mv "${{ github.action_path }}/shellcheck-${INPUT_VERSION}/shellcheck" \
-          "${{ github.action_path }}/shellcheck"
+        # otherwise, fail loudly
+        echo "Existing shellcheck version ${existing_version} does not match specified version ${INPUT_VERSION}"
+        exit 1
 
     - name: Display shellcheck version
       shell: bash
       run: |
-        "${{ github.action_path }}/shellcheck" --version
+        "${{ steps.binary.outputs.path }}" --version
 
     - name: Set options
       shell: bash
@@ -204,12 +236,12 @@ runs:
             -print0)
 
         if [[ -n "${INPUT_CHECK_TOGETHER}" ]]; then
-          "${{ github.action_path }}/shellcheck" \
+          "${{ steps.binary.outputs.path }}" \
             ${INPUT_SHELLCHECK_OPTIONS} \
             "${filepaths[@]}" || statuscode=$?
         else
           for file in "${filepaths[@]}"; do
-            "${{ github.action_path }}/shellcheck" \
+            "${{ steps.binary.outputs.path }}" \
               ${INPUT_SHELLCHECK_OPTIONS} \
               "$file" || statuscode=$?
           done
