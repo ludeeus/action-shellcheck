@@ -166,3 +166,28 @@ If running the latest stable version of Shellcheck is not to your liking, you ca
      with:
        version: v0.9.0
 ```
+
+## Run Spellcheck in self-hosted runner
+
+To run Spellcheck in self-hosted container, first need to add all OS requirements based on container image used.
+(For Rockylinux 8 image, xz and findutils for example)
+
+```yaml
+on: push
+
+name: "Trigger: Push action"
+
+jobs:
+  shellcheck:
+    name: Shellcheck
+    runs-on: [self-hosted, rocky]
+    container: rockylinux:8
+    steps:
+      - uses: actions/checkout@v3
+      - name: OS packages
+        run: |
+          dnf install xz findutils -y
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+ ```
+ 
